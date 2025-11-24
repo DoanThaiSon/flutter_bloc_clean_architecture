@@ -36,10 +36,14 @@ class _MainPageState extends BasePageState<MainPage, MainBloc> {
           },
           showSelectedLabels: true,
           showUnselectedLabels: true,
-          // unselectedItemColor: AppColors.current.primaryColor,
-          // selectedItemColor: AppColors.current.primaryColor,
+          selectedLabelStyle: AppTextStyles.body2SemiBold(
+              color: AppColors.current.textLinkColor),
+          unselectedLabelStyle: AppTextStyles.body2SemiBold(
+              color: AppColors.current.secondaryTextColor),
+          selectedItemColor: AppColors.current.textLinkColor,
+          unselectedItemColor: AppColors.current.secondaryTextColor,
           type: BottomNavigationBarType.fixed,
-          // backgroundColor: AppColors.current.primaryColor,
+          backgroundColor: AppColors.current.whiteColor,
           items: BottomTab.values
               .map(
                 (tab) => BottomNavigationBarItem(

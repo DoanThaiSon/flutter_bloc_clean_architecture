@@ -44,6 +44,7 @@ class AppRouter extends $AppRouter {
             ],
           ),
         ]),
+        AutoRoute(page: LanguageRoute.page),
       ];
 }
 

@@ -35,4 +35,38 @@ class AppTextStyles {
         fontWeight: FontWeight.w400,
         color: AppColors.current.secondaryTextColor,
       ));
+  static TextStyle titleTextDefault(
+      {Color? color,
+        double? fontSize,
+        FontWeight? fontWeight,
+        TextDecoration? decoration}) =>
+      _baseTextStyle.merge(TextStyle(
+        decoration: decoration,
+        fontSize: fontSize ?? Dimens.d14,
+        fontWeight: fontWeight ?? FontWeight.w400,
+        fontFamily: 'Inter Tight',
+        color: color ?? AppColors.defaultAppColor.primaryColor,
+      ));
+  static TextStyle s24w500Primary({
+    double? tablet,
+    double? ultraTablet,
+    Color? color,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize: Dimens.d24.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w600,
+        color: color,
+        height: Dimens.d24 / Dimens.d18,
+      ));
+
+
+  static TextStyle body2SemiBold({
+    Color? color,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize: Dimens.d14,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ));
+
 }

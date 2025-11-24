@@ -89,14 +89,14 @@ class _HomePageState extends BasePageState<HomePage, HomeBloc> {
                               child: Container(
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  color: AppColors.current.primaryColor,
+                                  color: Colors.red,
                                   borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
                                 ),
                                 width: double.infinity,
                                 height: Dimens.d60.responsive(),
                                 child: Text(
                                   user.email,
-                                  style: AppTextStyles.s14w400Primary(),
+                                  style: AppTextStyles.titleTextDefault(),
                                 ),
                               ),
                             ),

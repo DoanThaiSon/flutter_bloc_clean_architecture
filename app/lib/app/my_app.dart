@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:domain/domain.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -45,7 +44,7 @@ class _MyAppState extends BasePageState<MyApp, AppBloc> {
               final MediaQueryData data = MediaQuery.of(context);
 
               return MediaQuery(
-                data: data.copyWith(textScaleFactor: 1.0),
+                data: data.copyWith(textScaler: TextScaler.noScaling),
                 child: child ?? const SizedBox.shrink(),
               );
             },

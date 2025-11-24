@@ -10,4 +10,5 @@ class AppRouteInfo with _$AppRouteInfo {
   const factory AppRouteInfo.login() = _Login;
   const factory AppRouteInfo.main() = _Main;
   const factory AppRouteInfo.itemDetail(User user) = _UserDetail;
+  const factory AppRouteInfo.language() = _LanguagePage;
 }

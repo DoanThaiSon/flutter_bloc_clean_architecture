@@ -27,7 +27,12 @@ enum LanguageCode {
   ja(
     localeCode: LocaleConstants.ja,
     serverValue: ServerRequestResponseConstants.ja,
+  ),
+  vi(
+    localeCode: LocaleConstants.vi,
+    serverValue: ServerRequestResponseConstants.vi,
   );
+
 
   const LanguageCode({
     required this.localeCode,
@@ -36,8 +41,20 @@ enum LanguageCode {
   final String localeCode;
   final String serverValue;
 
-  static const defaultValue = ja;
+  static LanguageCode get defaultValue => vi;
+  String get getFullCountryNameByLanguage {
+    switch (this) {
+      case LanguageCode.vi:
+        return S.current.vietnamese;
+      case LanguageCode.en:
+        return S.current.english;
+      case LanguageCode.ja:
+        return S.current.japanese;
+    }
+  }
 }
+
+
 
 enum NotificationType {
   unknown,
@@ -50,8 +67,8 @@ enum NotificationType {
 enum BottomTab {
   home(icon: Icon(Icons.home), activeIcon: Icon(Icons.home)),
   search(icon: Icon(Icons.search), activeIcon: Icon(Icons.search)),
-  myPage(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
-
+  // myPage(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
+  account(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
   const BottomTab({
     required this.icon,
     required this.activeIcon,
@@ -65,8 +82,8 @@ enum BottomTab {
         return S.current.home;
       case BottomTab.search:
         return S.current.search;
-      case BottomTab.myPage:
-        return S.current.myPage;
+      case BottomTab.account:
+        return S.current.account;
     }
   }
 }

@@ -27,5 +27,13 @@
   "myPage": "My Page",
   "home": "Home",
   "darkTheme": "Dark Theme",
-  "japanese": "Japanese"
+  "japanese": "Japanese",
+  "vietnamese": "Vietnamese",
+  "english": "English",
+  "language": "Language",
+  "confirm":"Confirm",
+  "logoutConfirmationMessage": "Are you sure you want to log out?",
+  "deleteAccountDescription": "We will deactivate your account for 30 days. If you do not log in again within this period, your account will be permanently deleted from our system. Are you sure you want to delete your account?",
+  "deleteAccountTitle": "Delete Account",
+  "account": "Account"
 }

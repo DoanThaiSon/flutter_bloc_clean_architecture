@@ -1,5 +1,5 @@
 library app;
-
+export 'package:flutter/material.dart';
 export 'app.dart';
 export 'app/bloc/app_bloc.dart';
 export 'app/bloc/app_event.dart';
