@@ -36,5 +36,3 @@ dev_dependencies:
   injectable_generator: 2.4.1
   logging: 1.2.0
   mocktail: 1.0.3
-  nals_lints:
-    path: ../nals_lints
