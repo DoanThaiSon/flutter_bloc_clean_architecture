@@ -13,6 +13,7 @@ class AppRouteInfoMapper extends BaseRouteInfoMapper {
       main: () => const MainRoute(),
       itemDetail: (user) => ItemDetailRoute(user: user),
       language: () => const LanguageRoute(),
+      welcome: () => const WelcomePageRoute()
     );
   }
 }

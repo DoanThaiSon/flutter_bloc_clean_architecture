@@ -44,4 +44,23 @@ class DeviceUtils {
         ? DeviceType.mobile
         : DeviceType.tablet;
   }
+  static Future<String> getOsVersion() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.systemVersion;
+    } else {
+      final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.version.release;
+    }
+  }
+}
+extension Devices on BuildContext {
+  double get deviceHeight {
+    return MediaQuery.of(this).size.height;
+  }
+
+  double get deviceWidth {
+    return MediaQuery.of(this).size.width;
+  }
 }

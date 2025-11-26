@@ -68,5 +68,16 @@ class AppTextStyles {
         fontWeight: FontWeight.w600,
         color: color,
       ));
-
+  static TextStyle title1SemiBold({
+    Color? color,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize: Dimens.d24,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ));
+  static TextStyle body2Medium({
+    Color? color,
+  }) =>
+      _baseTextStyle.merge(TextStyle(fontSize: Dimens.d14, fontWeight: FontWeight.w500, color: color));
 }

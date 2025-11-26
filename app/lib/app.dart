@@ -1,5 +1,6 @@
 library app;
 export 'package:flutter/material.dart';
+
 export 'app.dart';
 export 'app/bloc/app_bloc.dart';
 export 'app/bloc/app_event.dart';
@@ -57,6 +58,7 @@ export 'resource/styles/app_colors.dart';
 export 'resource/styles/app_text_styles.dart';
 export 'resource/styles/app_themes.dart';
 export 'shared_view/app_text_field.dart';
+export 'shared_view/button.dart';
 export 'ui/home/home_page.dart';
 export 'ui/item_detail/item_detail_page.dart';
 export 'ui/login/login_page.dart';

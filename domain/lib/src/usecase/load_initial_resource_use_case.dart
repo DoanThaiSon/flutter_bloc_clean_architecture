@@ -15,8 +15,11 @@ class LoadInitialResourceUseCase
   @protected
   @override
   LoadInitialResourceOutput buildUseCase(LoadInitialResourceInput input) {
-    final initialRoutes = [_repository.isLoggedIn ? InitialAppRoute.main : InitialAppRoute.login];
+    final isFirstLaunchApp =  _repository.isFirstLaunchApp;
+    print('isFirstLaunchApp $isFirstLaunchApp');
+    final initialRoutes = [!isFirstLaunchApp ? InitialAppRoute.welcome : ( _repository.isLoggedIn ? InitialAppRoute.main : InitialAppRoute.login)];
 
+    print('isFirstLaunchApp $initialRoutes');
     return LoadInitialResourceOutput(initialRoutes: initialRoutes);
   }
 }

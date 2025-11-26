@@ -25,10 +25,10 @@ class AppPreferences with LogMixin {
 
   String get languageCode => _sharedPreference.getString(SharedPreferenceKeys.languageCode) ?? '';
 
-  bool get isFirstLogin => _sharedPreference.getBool(SharedPreferenceKeys.isFirstLogin) ?? true;
+  bool get isFirstLogin => _sharedPreference.getBool(SharedPreferenceKeys.isFirstLogin) ?? false;
 
   bool get isFirstLaunchApp =>
-      _sharedPreference.getBool(SharedPreferenceKeys.isFirstLaunchApp) ?? true;
+      _sharedPreference.getBool(SharedPreferenceKeys.isFirstLaunchApp) ?? false;
 
   Future<String> get accessToken {
     return _encryptedSharedPreferences.getString(SharedPreferenceKeys.accessToken);

@@ -6,6 +6,7 @@ export 'src/di/di.dart';
 export 'src/entity/app_notification.dart';
 export 'src/entity/base/paged_list.dart';
 export 'src/entity/base/process_state.dart';
+export 'src/entity/entity.dart';
 export 'src/entity/enum/enum.dart';
 export 'src/entity/image_url.dart';
 export 'src/entity/token.dart';
