@@ -46,7 +46,7 @@
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<true/>
 		<key>UIStatusBarHidden</key>
-		<true/>
+		<false/>
 		<!-- ios location permistion -->
 		<key>NSCameraUsageDescription</key>
 		<string>To capture photos to check in or check out</string>
@@ -57,8 +57,8 @@
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Requires access to LocationWhenInUse..</string>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-</dict>
+		<true/>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+	</dict>
 </plist>
