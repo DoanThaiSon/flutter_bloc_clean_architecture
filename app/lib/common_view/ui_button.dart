@@ -22,8 +22,8 @@ class UIButton extends StatelessWidget {
   const UIButton({
     super.key,
     this.width = double.maxFinite,
-    this.height = 55,
-    this.radius = 5,
+    this.height = Dimens.d55,
+    this.radius = Dimens.d5,
     this.onTap,
     this.gradient,
     this.color,
@@ -84,7 +84,7 @@ class UIButton extends StatelessWidget {
                 : const Color.fromRGBO(0, 0, 0, 0.0)),
             textStyle: WidgetStateProperty.all(AppTextStyles.titleTextDefault(
               fontWeight: FontWeight.w700,
-                fontSize: Dimens.d16,
+                fontSize: Dimens.d16.responsive(),
                 color: AppColors.current.whiteColor)),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
@@ -100,7 +100,7 @@ class UIButton extends StatelessWidget {
               iconData != null
                   ? Icon(
                       iconData,
-                      size: Dimens.d16,
+                      size: Dimens.d16.responsive(),
                       color: AppColors.current.orangeColor,
                     )
                   : const SizedBox(),

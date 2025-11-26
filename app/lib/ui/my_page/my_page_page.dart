@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:domain/domain.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:resources/resources.dart';
 
 import '../../app.dart';
@@ -28,30 +27,36 @@ class _MyPagePageState extends BasePageState<MyPagePage, MyPageBloc> {
   }
 
   Widget _buildBody() {
-    return SafeArea(
-      child: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildLogOutAndChangePassword(),
-              Divider(
-                thickness: Dimens.d10,
-                color: AppColors.current.backgroundSetting,
-              ),
-              _buildLanguageAndPolicies(),
-              Divider(
-                thickness: Dimens.d10,
-                color: AppColors.current.backgroundSetting,
-              ),
-              _buildLogoutItem()
-            ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildHeader(),
+          _buildLogOutAndChangePassword(),
+          Divider(
+            thickness: Dimens.d10,
+            color: AppColors.current.backgroundSetting,
           ),
-        );
-      }),
+          _buildLanguageAndPolicies(),
+          Divider(
+            thickness: Dimens.d10,
+            color: AppColors.current.backgroundSetting,
+          ),
+          _buildLogoutItem()
+        ],
+      ),
     );
   }
+  Widget _buildHeader() {
+    return Image.asset(
+      Assets.images.pictures.backgroundSetting.path,
+      height: Dimens.d200.responsive(),
+      width: double.infinity,
+      fit: BoxFit.cover,
+    );
+  }
+
 
   Widget _buildLanguageAndPolicies() {
     return Container(

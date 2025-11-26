@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:domain/domain.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:initializer/initializer.dart';
 import 'package:shared/shared.dart';
@@ -16,6 +17,13 @@ Future<void> _runMyApp() async {
   // await Firebase.initializeApp();
   await AppInitializer(AppConfig.getInstance()).init();
   final initialResource = await _loadInitialResource();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
   runApp(MyApp(initialResource: initialResource));
 }
 

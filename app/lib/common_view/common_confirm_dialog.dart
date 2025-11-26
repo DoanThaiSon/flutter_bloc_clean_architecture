@@ -40,7 +40,7 @@ class CustomConfirmDialog extends StatelessWidget {
       children.add(
         Text(
           title ?? '',
-          style: AppTextStyles.titleTextDefault(fontSize: Dimens.d18, fontWeight: FontWeight.w500),
+          style: AppTextStyles.titleTextDefault(fontSize: Dimens.d18.responsive(), fontWeight: FontWeight.w500),
           textAlign: TextAlign.start,
         ),
       );
@@ -51,7 +51,7 @@ class CustomConfirmDialog extends StatelessWidget {
       children.add(
         Text(
           description ?? '',
-          style: textStyle??AppTextStyles.titleTextDefault(fontWeight: FontWeight.w500,fontSize: Dimens.d16),
+          style: textStyle??AppTextStyles.titleTextDefault(fontWeight: FontWeight.w500,fontSize: Dimens.d16.responsive()),
           textAlign: TextAlign.center,
         ),
       );
@@ -62,10 +62,10 @@ class CustomConfirmDialog extends StatelessWidget {
       button.add(
         Expanded(
           child: UIButton(
-            radius: Dimens.d8,
+            radius: Dimens.d8.responsive(),
             enableShadow: false,
-            height: Dimens.d44,
-            border: Border.all(color: AppColors.current.orangeColor, width: 1),
+            height: Dimens.d44.responsive(),
+            border: Border.all(color: AppColors.current.orangeColor, width: Dimens.d1.responsive()),
             onTap: onCancel,
             text: cancelText ?? S.current.cancel,
             textColor: AppColors.current.orangeColor,
@@ -82,8 +82,8 @@ class CustomConfirmDialog extends StatelessWidget {
       button.add(
         Expanded(
           child: UIButton(
-            height: Dimens.d44,
-            radius: Dimens.d8,
+            height: Dimens.d44.responsive(),
+            radius: Dimens.d8.responsive(),
             color: AppColors.current.textLinkColor,
             enableShadow: false,
             onTap: onConfirm,
@@ -95,13 +95,13 @@ class CustomConfirmDialog extends StatelessWidget {
     }
 
     return Container(
-      height: Dimens.d214,
+      height: Dimens.d214.responsive(),
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: Dimens.d18),
       child: Material(
         color: AppColors.current.whiteColor,
         surfaceTintColor: AppColors.current.whiteColor,
-        borderRadius: BorderRadius.circular(Dimens.d24),
+        borderRadius: BorderRadius.circular(Dimens.d24.responsive()),
         child: Padding(
           padding: const EdgeInsets.all(Dimens.d20),
           child: Column(
