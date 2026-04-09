@@ -9,22 +9,20 @@ class RepositoryImpl implements Repository {
   RepositoryImpl(
     this._appApiService,
     this._appPreferences,
-    this._appDatabase,
     this._preferenceUserDataMapper,
     this._userDataMapper,
     this._languageCodeDataMapper,
     this._genderDataMapper,
-    this._localUserDataMapper,
   );
 
   final AppApiService _appApiService;
   final AppPreferences _appPreferences;
-  final AppDatabase _appDatabase;
+
   final PreferenceUserDataMapper _preferenceUserDataMapper;
   final ApiUserDataMapper _userDataMapper;
   final LanguageCodeDataMapper _languageCodeDataMapper;
   final GenderDataMapper _genderDataMapper;
-  final LocalUserDataMapper _localUserDataMapper;
+
 
   @override
   bool get isLoggedIn => _appPreferences.isLoggedIn;
@@ -148,40 +146,6 @@ class RepositoryImpl implements Repository {
     final response = await _appApiService.getMe();
 
     return _userDataMapper.mapToEntity(response);
-  }
-
-  @override
-  int deleteAllUsersAndImageUrls() {
-    return _appDatabase.deleteAllUsersAndImageUrls();
-  }
-
-  @override
-  bool deleteImageUrl(int id) {
-    return _appDatabase.deleteImageUrl(id);
-  }
-
-  @override
-  User? getLocalUser(int id) {
-    return _localUserDataMapper.mapToEntity(_appDatabase.getUser(id));
-  }
-
-  @override
-  List<User> getLocalUsers() {
-    return _localUserDataMapper.mapToListEntity(_appDatabase.getUsers());
-  }
-
-  @override
-  Stream<List<User>> getLocalUsersStream() {
-    return _appDatabase
-        .getUsersStream()
-        .map((event) => _localUserDataMapper.mapToListEntity(event));
-  }
-
-  @override
-  int putLocalUser(User user) {
-    final userData = _localUserDataMapper.mapToData(user);
-
-    return _appDatabase.putUser(userData);
   }
 
   @override

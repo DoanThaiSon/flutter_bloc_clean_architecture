@@ -59,15 +59,4 @@ abstract class Repository {
 
   Future<User> getMe();
 
-  int putLocalUser(User user);
-
-  Stream<List<User>> getLocalUsersStream();
-
-  List<User> getLocalUsers();
-
-  User? getLocalUser(int id);
-
-  bool deleteImageUrl(int id);
-
-  int deleteAllUsersAndImageUrls();
 }

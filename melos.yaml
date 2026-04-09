@@ -143,7 +143,7 @@ scripts:
   metrics_shared:
     run: dart pub global run melos exec --scope="*shared*" --flutter -- "flutter pub run dart_code_metrics:metrics analyze lib"
     description: Run metrics shared.
-    
+
   analyze:
     run: dart pub global run melos exec --flutter -- "flutter analyze --no-pub --suppress-analytics"
     description: Run analyze.
@@ -183,7 +183,7 @@ scripts:
   pub_get_data:
     run: dart pub global run melos exec --fail-fast --scope="*data*" "flutter pub get"
     description: pub get data module.
-    
+
   pub_get_domain:
     run: dart pub global run melos exec --fail-fast --scope="*domain*" "flutter pub get"
     description: pub get domain module.
