@@ -13,7 +13,7 @@ abstract class Repository {
 
   Stream<bool> get onConnectivityChanged;
 
-  Future<void> login({
+  Future<User> login({
     required String email,
     required String password,
   });
@@ -28,13 +28,6 @@ abstract class Repository {
   });
 
   Future<void> forgotPassword(String email);
-
-  Future<void> register({
-    required String username,
-    required String email,
-    required String password,
-    required Gender gender,
-  });
 
   User getUserPreference();
 
@@ -59,4 +52,15 @@ abstract class Repository {
 
   Future<User> getMe();
 
+  Future<AttendanceResponse> getTodayAttendance();
+
+  Future<CheckoutResponse> checkout({
+    required double latitude,
+    required double longitude,
+  });
+
+  Future<CheckoutResponse> checkIn({
+    required double latitude,
+    required double longitude,
+  });
 }

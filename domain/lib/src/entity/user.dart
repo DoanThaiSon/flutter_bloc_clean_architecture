@@ -10,6 +10,7 @@ class User with _$User {
   const factory User({
     @Default(User.defaultId) int id,
     @Default(User.defaultEmail) String email,
+    @Default(User.defaultName) String name,
     @Default(User.defaultMoney) BigDecimal money,
     @Default(User.defaultBirthday) DateTime? birthday,
     @Default(User.defaultAvatar) ImageUrl avatar,
@@ -19,6 +20,7 @@ class User with _$User {
 
   static const defaultId = 0;
   static const defaultEmail = '';
+  static const defaultName = '';
   static const defaultMoney = BigDecimal.zero;
   static const DateTime? defaultBirthday = null;
   static const defaultAvatar = ImageUrl();

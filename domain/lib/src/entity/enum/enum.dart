@@ -7,7 +7,7 @@ enum InitialAppRoute {
   login,
   main,
 }
-
+enum LoadDataStatus { init, fail, success, loading }
 enum Gender {
   male(ServerRequestResponseConstants.male),
   female(ServerRequestResponseConstants.female),
@@ -66,10 +66,13 @@ enum NotificationType {
 }
 
 enum BottomTab {
-  home(icon: Icon(Icons.home), activeIcon: Icon(Icons.home)),
-  search(icon: Icon(Icons.search), activeIcon: Icon(Icons.search)),
-  // myPage(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
-  account(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
+  // home(icon: Icon(Icons.home), activeIcon: Icon(Icons.home)),
+  // search(icon: Icon(Icons.search), activeIcon: Icon(Icons.search)),
+  // account(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
+  homeAttendance(icon: Icon(Icons.home), activeIcon: Icon(Icons.home)),
+  historyAttendance(icon: Icon(Icons.history), activeIcon: Icon(Icons.history)),
+  profileAttendance(icon: Icon(Icons.person), activeIcon: Icon(Icons.person));
+  
   const BottomTab({
     required this.icon,
     required this.activeIcon,
@@ -79,12 +82,18 @@ enum BottomTab {
 
   String get title {
     switch (this) {
-      case BottomTab.home:
-        return S.current.home;
-      case BottomTab.search:
-        return S.current.search;
-      case BottomTab.account:
-        return S.current.account;
+      // case BottomTab.home:
+      //   return S.current.home;
+      // case BottomTab.search:
+      //   return S.current.search;
+      // case BottomTab.account:
+      //   return S.current.account;
+      case BottomTab.homeAttendance:
+        return 'Trang chủ';
+      case BottomTab.historyAttendance:
+        return 'Lịch sử';
+      case BottomTab.profileAttendance:
+        return 'Cá nhân';
     }
   }
 }

@@ -111,6 +111,40 @@ extension DateTimeExtensions on DateTime {
   DateTime get lastDateOfMonth {
     return DateTime(year, month + 1, 0);
   }
+
+  /// Format ngày tháng theo tiếng Việt
+  /// Ví dụ: "Thứ Tư, 24 Tháng 5"
+  String toVietnameseDateString() {
+    const weekDays = [
+      'Thứ Hai',
+      'Thứ Ba',
+      'Thứ Tư',
+      'Thứ Năm',
+      'Thứ Sáu',
+      'Thứ Bảy',
+      'Chủ Nhật',
+    ];
+    
+    final weekDay = weekDays[weekday - 1];
+    return '$weekDay, $day Tháng $month';
+  }
+
+  /// Format ngày tháng đầy đủ theo tiếng Việt
+  /// Ví dụ: "Thứ Tư, 24 Tháng 5 Năm 2024"
+  String toVietnameseFullDateString() {
+    const weekDays = [
+      'Thứ Hai',
+      'Thứ Ba',
+      'Thứ Tư',
+      'Thứ Năm',
+      'Thứ Sáu',
+      'Thứ Bảy',
+      'Chủ Nhật',
+    ];
+    
+    final weekDay = weekDays[weekday - 1];
+    return '$weekDay, $day Tháng $month Năm $year';
+  }
 }
 
 extension DateTimeTimezoneExtension on DateTime {

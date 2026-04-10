@@ -34,7 +34,11 @@
                 "--flavor",
                 "staging",
                 "--dart-define",
-                "FLAVOR=staging"
+                "FLAVOR=staging",
+                "--dart-define",
+                "BASE_URL=${STG_BASE_URL}",
+                "--dart-define",
+                "API_VERSION=${STG_API_VERSION}"
             ]
         },
         {
@@ -85,7 +89,11 @@
                 "--flavor",
                 "staging",
                 "--dart-define",
-                "FLAVOR=staging"
+                "FLAVOR=staging",
+                "--dart-define",
+                "BASE_URL=${STG_BASE_URL}",
+                "--dart-define",
+                "API_VERSION=${STG_API_VERSION}"
             ]
         },
         {
@@ -137,7 +145,11 @@
                 "staging",
                 "--release",
                 "--dart-define",
-                "FLAVOR=staging"
+                "FLAVOR=staging",
+                "--dart-define",
+                "BASE_URL=${STG_BASE_URL}",
+                "--dart-define",
+                "API_VERSION=${STG_API_VERSION}"
             ]
         },
         {

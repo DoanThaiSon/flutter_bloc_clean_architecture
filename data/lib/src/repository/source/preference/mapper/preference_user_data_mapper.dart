@@ -9,16 +9,18 @@ class PreferenceUserDataMapper extends BaseDataMapper<PreferenceUserData, User>
   @override
   User mapToEntity(PreferenceUserData? data) {
     return User(
-      id: data?.id ?? User.defaultId,
+      id: data?.id.hashCode ?? User.defaultId,
       email: data?.email ?? User.defaultEmail,
+      name: data?.name ?? User.defaultName,
     );
   }
 
   @override
   PreferenceUserData mapToData(User entity) {
     return PreferenceUserData(
-      id: entity.id,
+      id: entity.id.toString(),
       email: entity.email,
+      name: entity.name,
     );
   }
 }

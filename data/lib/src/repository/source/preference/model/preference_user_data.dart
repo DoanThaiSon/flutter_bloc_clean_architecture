@@ -6,8 +6,9 @@ part 'preference_user_data.g.dart';
 @freezed
 class PreferenceUserData with _$PreferenceUserData {
   const factory PreferenceUserData({
-    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'id') required String id,
     @JsonKey(name: 'email') required String email,
+    @JsonKey(name: 'name') @Default('') String name,
   }) = _PreferenceUserData;
 
   const PreferenceUserData._();

@@ -184,7 +184,7 @@ class _WelcomePageState extends BasePageState<WelcomePage, WelcomeBloc> {
                 child: Button(
                   title: 'Bắt đầu',
                   onPressed: () {
-                    navigator.replaceAll([const AppRouteInfo.login()]);
+                    navigator.replaceAll([const AppRouteInfo.loginAttendance()]);
                   },
                 ),
               ),

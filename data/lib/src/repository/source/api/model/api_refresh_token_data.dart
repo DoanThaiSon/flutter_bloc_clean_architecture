@@ -4,11 +4,22 @@ part 'api_refresh_token_data.freezed.dart';
 part 'api_refresh_token_data.g.dart';
 
 @freezed
-class ApiRefreshTokenData with _$ApiRefreshTokenData {
-  const factory ApiRefreshTokenData({
-    @JsonKey(name: 'access_token') String? accessToken,
-  }) = _ApiRefreshTokenData;
+class ApiAuthResponseData with _$ApiAuthResponseData {
+  const factory ApiAuthResponseData({
+    @JsonKey(name: 'data') TokenAuthResponseData? data,
+  }) = _ApiAuthResponseData;
 
-  factory ApiRefreshTokenData.fromJson(Map<String, dynamic> json) =>
-      _$ApiRefreshTokenDataFromJson(json);
+  factory ApiAuthResponseData.fromJson(Map<String, dynamic> json) =>
+      _$ApiAuthResponseDataFromJson(json);
+}
+
+@freezed
+class TokenAuthResponseData with _$TokenAuthResponseData {
+  const factory TokenAuthResponseData({
+    @JsonKey(name: 'accessToken') String? accessToken,
+    @JsonKey(name: 'refreshToken') String? refreshToken,
+  }) = _TokenAuthResponseData;
+
+  factory TokenAuthResponseData.fromJson(Map<String, dynamic> json) =>
+      _$TokenAuthResponseDataFromJson(json);
 }

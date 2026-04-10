@@ -13,6 +13,9 @@ class RepositoryImpl implements Repository {
     this._userDataMapper,
     this._languageCodeDataMapper,
     this._genderDataMapper,
+    this._loginUserDataMapper,
+    this._attendanceResponseDataMapper,
+    this._checkoutResponseDataMapper,
   );
 
   final AppApiService _appApiService;
@@ -22,7 +25,9 @@ class RepositoryImpl implements Repository {
   final ApiUserDataMapper _userDataMapper;
   final LanguageCodeDataMapper _languageCodeDataMapper;
   final GenderDataMapper _genderDataMapper;
-
+  final ApiLoginUserDataMapper _loginUserDataMapper;
+  final ApiAttendanceResponseDataMapper _attendanceResponseDataMapper;
+  final ApiCheckoutResponseDataMapper _checkoutResponseDataMapper;
 
   @override
   bool get isLoggedIn => _appPreferences.isLoggedIn;
@@ -34,8 +39,9 @@ class RepositoryImpl implements Repository {
   bool get isFirstLaunchApp => _appPreferences.isFirstLaunchApp;
 
   @override
-  Stream<bool> get onConnectivityChanged =>
-      Connectivity().onConnectivityChanged.map((event) => event != ConnectivityResult.none);
+  Stream<bool> get onConnectivityChanged => Connectivity()
+      .onConnectivityChanged
+      .map((event) => event != ConnectivityResult.none);
 
   @override
   bool get isDarkMode => _appPreferences.isDarkMode;
@@ -55,20 +61,23 @@ class RepositoryImpl implements Repository {
   }
 
   @override
-  Future<void> login({
+  Future<User> login({
     required String email,
     required String password,
   }) async {
-    final response = await _appApiService.login(email: email, password: password);
+    final response =
+        await _appApiService.login(email: email, password: password);
+    final user = _loginUserDataMapper.mapToEntity(response?.data?.user);
+
     await Future.wait([
-      saveAccessToken(response?.data?.accessToken ?? ''),
-      saveUserPreference(
-        User(
-          id: response?.data?.id ?? -1,
-          email: response?.data?.email ?? '',
-        ),
-      ),
+      if (response?.data?.accessToken != null)
+        _appPreferences.saveAccessToken(response!.data!.accessToken!),
+      if (response?.data?.refreshToken != null)
+        _appPreferences.saveRefreshToken(response!.data!.refreshToken!),
+      saveUserPreference(user),
     ]);
+
+    return user;
   }
 
   @override
@@ -91,34 +100,12 @@ class RepositoryImpl implements Repository {
       );
 
   @override
-  Future<void> forgotPassword(String email) => _appApiService.forgotPassword(email);
+  Future<void> forgotPassword(String email) =>
+      _appApiService.forgotPassword(email);
 
   @override
-  Future<void> register({
-    required String username,
-    required String email,
-    required String password,
-    required Gender gender,
-  }) async {
-    final response = await _appApiService.register(
-      username: username,
-      email: email,
-      password: password,
-      gender: _genderDataMapper.mapToData(gender),
-    );
-    await Future.wait([
-      saveAccessToken(response?.data?.accessToken ?? ''),
-      saveUserPreference(
-        User(
-          id: response?.data?.id ?? -1,
-          email: response?.data?.email ?? '',
-        ),
-      ),
-    ]);
-  }
-
-  @override
-  User getUserPreference() => _preferenceUserDataMapper.mapToEntity(_appPreferences.currentUser);
+  User getUserPreference() =>
+      _preferenceUserDataMapper.mapToEntity(_appPreferences.currentUser);
 
   @override
   Future<void> clearCurrentUserData() => _appPreferences.clearCurrentUserData();
@@ -135,11 +122,13 @@ class RepositoryImpl implements Repository {
 
   @override
   Future<bool> saveLanguageCode(LanguageCode languageCode) {
-    return _appPreferences.saveLanguageCode(_languageCodeDataMapper.mapToData(languageCode));
+    return _appPreferences
+        .saveLanguageCode(_languageCodeDataMapper.mapToData(languageCode));
   }
 
   @override
-  Future<bool> saveIsDarkMode(bool isDarkMode) => _appPreferences.saveIsDarkMode(isDarkMode);
+  Future<bool> saveIsDarkMode(bool isDarkMode) =>
+      _appPreferences.saveIsDarkMode(isDarkMode);
 
   @override
   Future<User> getMe() async {
@@ -149,9 +138,40 @@ class RepositoryImpl implements Repository {
   }
 
   @override
-  Future<void> saveAccessToken(String accessToken) => _appPreferences.saveAccessToken(accessToken);
+  Future<AttendanceResponse> getTodayAttendance() async {
+    final response = await _appApiService.getTodayAttendance();
+    return _attendanceResponseDataMapper.mapToEntity(response);
+  }
 
   @override
-  Future<bool> saveUserPreference(User user) =>
-      _appPreferences.saveCurrentUser(_preferenceUserDataMapper.mapToData(user));
+  Future<CheckoutResponse> checkout({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final response = await _appApiService.checkout(
+      latitude: latitude,
+      longitude: longitude,
+    );
+    return _checkoutResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<CheckoutResponse> checkIn({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final response = await _appApiService.checkIn(
+      latitude: latitude,
+      longitude: longitude,
+    );
+    return _checkoutResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<void> saveAccessToken(String accessToken) =>
+      _appPreferences.saveAccessToken(accessToken);
+
+  @override
+  Future<bool> saveUserPreference(User user) => _appPreferences
+      .saveCurrentUser(_preferenceUserDataMapper.mapToData(user));
 }

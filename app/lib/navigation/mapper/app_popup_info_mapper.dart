@@ -50,7 +50,7 @@ class AppPopupInfoMapper extends BasePopupInfoMapper {
             text: S.current.login,
             onPressed: Func0(() async {
               await navigator.pop();
-              await navigator.push(const AppRouteInfo.login());
+              await navigator.push(const AppRouteInfo.loginAttendance());
             }),
           ),
         ],

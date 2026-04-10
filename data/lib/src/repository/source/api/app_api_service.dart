@@ -9,22 +9,24 @@ class AppApiService {
     this._authAppServerApiClient,
     this._randomUserApiClient,
   );
+
   final NoneAuthAppServerApiClient _noneAuthAppServerApiClient;
   final AuthAppServerApiClient _authAppServerApiClient;
   final RandomUserApiClient _randomUserApiClient;
 
-  Future<DataResponse<ApiAuthResponseData>?> login({
+  Future<DataResponse<ApiLoginResponseData>?> login({
     required String email,
     required String password,
   }) async {
     return _noneAuthAppServerApiClient.request(
       method: RestMethod.post,
-      path: '/v1/auth/login',
+      path: '/auth/login',
       body: {
         'email': email,
         'password': password,
       },
-      decoder: (json) => ApiAuthResponseData.fromJson(json as Map<String, dynamic>),
+      decoder: (json) =>
+          ApiLoginResponseData.fromJson(json as Map<String, dynamic>),
     );
   }
 
@@ -51,7 +53,8 @@ class AppApiService {
         'password': password,
         'password_confirmation': password,
       },
-      decoder: (json) => ApiAuthResponseData.fromJson(json as Map<String, dynamic>),
+      decoder: (json) =>
+          ApiAuthResponseData.fromJson(json as Map<String, dynamic>),
     );
   }
 
@@ -88,6 +91,47 @@ class AppApiService {
       path: '/v1/me',
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
       decoder: (json) => ApiUserData.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiAttendanceDataResponse?> getTodayAttendance() async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/attendances/today',
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiAttendanceDataResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiCheckoutResponseData?> checkout({
+    required double latitude,
+    required double longitude,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.post,
+      path: '/attendances/check-out',
+      body: {
+        'location': {'latitude': latitude, 'longitude': longitude}
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiCheckoutResponseData.fromJson(json as Map<String, dynamic>),
+    );
+  }
+  Future<ApiCheckoutResponseData?> checkIn({
+    required double latitude,
+    required double longitude,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.post,
+      path: '/attendances/check-in',
+      body: {
+        'location': {'latitude': latitude, 'longitude': longitude}
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiCheckoutResponseData.fromJson(json as Map<String, dynamic>),
     );
   }
 

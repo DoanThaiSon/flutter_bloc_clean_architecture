@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:domain/domain.dart';
-import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../app.dart';
@@ -10,58 +8,55 @@ import '../../app.dart';
   replaceInRouteName: 'Page,Route',
 )
 @LazySingleton()
-class AppRouter extends RootStackRouter
- {
-   @override
-   RouteType get defaultRouteType => const RouteType.adaptive();
-
+class AppRouter extends RootStackRouter {
+  @override
+  RouteType get defaultRouteType => const RouteType.adaptive();
 
   @override
   List<AutoRoute> get routes => [
         AutoRoute(page: WelcomePageRoute.page),
         AutoRoute(page: MainRoute.page, children: [
           AutoRoute(
-            page: HomeTab.page,
+            page: HomeAttendanceTab.page,
             maintainState: true,
             children: [
-              AutoRoute(page: HomeRoute.page, initial: true),
-              AutoRoute(
-                page: ItemDetailRoute.page,
-                guards: [RouteGuard(GetIt.instance.get<IsLoggedInUseCase>())],
-              ),
+              AutoRoute(page: AttendanceHomeRoute.page, initial: true),
             ],
           ),
           AutoRoute(
-            page: SearchTab.page,
+            page: HistoryAttendanceTab.page,
             maintainState: true,
             children: [
-              AutoRoute(page: SearchRoute.page, initial: true),
+              AutoRoute(page: AttendanceHistoryRoute.page, initial: true),
             ],
           ),
           AutoRoute(
-            page: MyPageTab.page,
+            page: ProfileAttendanceTab.page,
             maintainState: true,
             children: [
-              AutoRoute(page: MyPageRoute.page, initial: true),
+              AutoRoute(page: AttendanceProfileRoute.page, initial: true),
             ],
           ),
         ]),
-        AutoRoute(page: LoginRoute.page),
         AutoRoute(page: LanguageRoute.page),
+        AutoRoute(page: AttendanceLoginRoute.page),
+        AutoRoute(page: AttendanceHomeRoute.page),
+        AutoRoute(page: AttendanceHistoryRoute.page),
+        AutoRoute(page: AttendanceProfileRoute.page),
       ];
 }
 
-@RoutePage(name: 'HomeTab')
-class HomeTabPage extends AutoRouter {
-  const HomeTabPage({super.key});
+@RoutePage(name: 'HomeAttendanceTab')
+class HomeAttendanceTabPage extends AutoRouter {
+  const HomeAttendanceTabPage({super.key});
 }
 
-@RoutePage(name: 'SearchTab')
-class SearchTabPage extends AutoRouter {
-  const SearchTabPage({super.key});
+@RoutePage(name: 'HistoryAttendanceTab')
+class HistoryAttendanceTabPage extends AutoRouter {
+  const HistoryAttendanceTabPage({super.key});
 }
 
-@RoutePage(name: 'MyPageTab')
-class MyPageTabPage extends AutoRouter {
-  const MyPageTabPage({super.key});
+@RoutePage(name: 'ProfileAttendanceTab')
+class ProfileAttendanceTabPage extends AutoRouter {
+  const ProfileAttendanceTabPage({super.key});
 }

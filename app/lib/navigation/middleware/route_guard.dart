@@ -22,7 +22,7 @@ class RouteGuard extends AutoRouteGuard {
     if (_isLoggedIn) {
       resolver.next(true);
     } else {
-      router.push(const LoginRoute());
+      router.push(const AttendanceLoginRoute());
       resolver.next(false);
     }
   }

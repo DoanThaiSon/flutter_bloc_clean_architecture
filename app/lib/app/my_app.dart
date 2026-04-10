@@ -85,7 +85,7 @@ class _MyAppState extends BasePageState<MyApp, AppBloc> {
         case InitialAppRoute.welcome:
           return const WelcomePageRoute();
         case InitialAppRoute.login:
-          return const LoginRoute();
+          return const AttendanceLoginRoute();
         case InitialAppRoute.main:
           return const MainRoute();
       }

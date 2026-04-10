@@ -23,9 +23,9 @@ class LoginUseCase extends BaseFutureUseCase<LoginInput, LoginOutput> {
       throw const ValidationException(ValidationExceptionKind.invalidPassword);
     }
 
-    await _repository.login(email: input.email, password: input.password);
+    final user = await _repository.login(email: input.email, password: input.password);
 
-    return const LoginOutput();
+    return LoginOutput(user: user);
   }
 }
 
@@ -41,5 +41,7 @@ class LoginInput extends BaseInput with _$LoginInput {
 class LoginOutput extends BaseOutput with _$LoginOutput {
   const LoginOutput._();
 
-  const factory LoginOutput() = _LoginOutput;
+  const factory LoginOutput({
+    required User user,
+  }) = _LoginOutput;
 }
