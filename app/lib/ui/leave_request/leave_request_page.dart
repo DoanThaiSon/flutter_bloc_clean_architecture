@@ -3,8 +3,6 @@ import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 import '../../app.dart';
-import '../../common_view/ui_button.dart';
-import '../../shared_view/empty_data_widget.dart';
 import 'bloc/leave_request.dart';
 
 @RoutePage()
@@ -65,8 +63,15 @@ class _LeaveRequestPageState
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-         navigator.push(AppRouteInfo.createLeaveRequest());
+        // onPressed: () {
+        //   navigator.push(const AppRouteInfo.createLeaveRequest());
+        // },
+        onPressed: () async {
+          final result =
+              await navigator.push(const AppRouteInfo.createLeaveRequest());
+          if (result == true) {
+            bloc.add(const LeaveRequestPageInitiated());
+          }
         },
         backgroundColor: AppColors.current.blue500Color,
         child: Icon(

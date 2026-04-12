@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../app.dart';
 import '../../common_view/common_text_field.dart';
 import '../../common_view/ui_button.dart';
-import 'bloc/create_leave_request.dart';
+import 'bloc/leave_request_bloc.dart';
+import 'bloc/leave_request_event.dart';
+import 'bloc/leave_request_state.dart';
 
 @RoutePage()
 class CreateLeaveRequestPage extends StatefulWidget {
@@ -16,13 +18,13 @@ class CreateLeaveRequestPage extends StatefulWidget {
 }
 
 class _CreateLeaveRequestPageState
-    extends BasePageState<CreateLeaveRequestPage, CreateLeaveRequestBloc> {
+    extends BasePageState<CreateLeaveRequestPage, LeaveRequestBloc> {
   final TextEditingController _reasonController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    bloc.add(const CreateLeaveRequestPageInitiated());
+    bloc.add(const GetLeaveCodes());
   }
 
   @override
@@ -41,7 +43,7 @@ class _CreateLeaveRequestPageState
         leadingIcon: LeadingIcon.newBack,
         onLeadingPressed: () => navigator.pop(useRootNavigator: true),
       ),
-      body: BlocBuilder<CreateLeaveRequestBloc, CreateLeaveRequestState>(
+      body: BlocBuilder<LeaveRequestBloc, LeaveRequestState>(
         builder: (context, state) {
           return SingleChildScrollView(
             padding: EdgeInsets.all(Dimens.d16.responsive()),
@@ -82,7 +84,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildLeaveTypeSection(CreateLeaveRequestState state) {
+  Widget _buildLeaveTypeSection(LeaveRequestState state) {
     return _buildSection(
       title: 'Loại ngày nghỉ',
       required: true,
@@ -97,7 +99,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildShiftSection(CreateLeaveRequestState state) {
+  Widget _buildShiftSection(LeaveRequestState state) {
     final isFullDay = state.selectedLeaveType == 'Nghỉ 1 ngày' ||
         state.selectedLeaveType == 'Nghỉ nhiều ngày';
 
@@ -117,7 +119,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildLeaveCodeSection(CreateLeaveRequestState state) {
+  Widget _buildLeaveCodeSection(LeaveRequestState state) {
     final leaveCodeNames =
         state.leaveCodes.map((code) => code.name).toList();
 
@@ -157,7 +159,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildDateSection(CreateLeaveRequestState state) {
+  Widget _buildDateSection(LeaveRequestState state) {
     final isMultipleDays = state.selectedLeaveType == 'Nghỉ nhiều ngày';
 
     if (isMultipleDays) {
@@ -246,7 +248,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildTotalDaysSection(CreateLeaveRequestState state) {
+  Widget _buildTotalDaysSection(LeaveRequestState state) {
     return _buildSection(
       title: 'Tổng số ngày',
       required: false,
@@ -254,7 +256,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildReasonSection(CreateLeaveRequestState state) {
+  Widget _buildReasonSection(LeaveRequestState state) {
     return _buildSection(
       title: 'Lý do đăng ký nghỉ',
       required: true,
@@ -287,7 +289,7 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildSubmitButton(CreateLeaveRequestState state) {
+  Widget _buildSubmitButton(LeaveRequestState state) {
     return UIButton(
       height: Dimens.d56.responsive(),
       width: double.infinity,
@@ -421,7 +423,7 @@ class _CreateLeaveRequestPageState
   }
 
   Future<void> _selectDate(
-      BuildContext context, CreateLeaveRequestState state) async {
+      BuildContext context, LeaveRequestState state) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: state.selectedDate ?? DateTime.now(),
@@ -447,7 +449,7 @@ class _CreateLeaveRequestPageState
   }
 
   Future<void> _selectStartDate(
-      BuildContext context, CreateLeaveRequestState state) async {
+      BuildContext context, LeaveRequestState state) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: state.startDate ?? DateTime.now(),
@@ -473,7 +475,7 @@ class _CreateLeaveRequestPageState
   }
 
   Future<void> _selectEndDate(
-      BuildContext context, CreateLeaveRequestState state) async {
+      BuildContext context, LeaveRequestState state) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate:
