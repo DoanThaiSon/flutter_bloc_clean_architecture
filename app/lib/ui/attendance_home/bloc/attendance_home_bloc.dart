@@ -80,7 +80,8 @@ class AttendanceHomeBloc
           emit(state.copyWith(
             getTodayAttendanceStatus: LoadDataStatus.init,
           ));
-        });
+        }
+        );
   }
 
   void _onTimeUpdated(

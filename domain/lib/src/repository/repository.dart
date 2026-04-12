@@ -63,4 +63,20 @@ abstract class Repository {
     required double latitude,
     required double longitude,
   });
+
+  Future<LeaveRequestResponse> getLeaveRequests({
+    required int page,
+    required int limit,
+  });
+
+  Future<LeaveCodeResponse> getLeaveCodes();
+
+  Future<CreateLeaveRequestResponse> createLeaveRequest({
+    required String dayType,
+    required String shift,
+    required String leaveCodeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+  });
 }

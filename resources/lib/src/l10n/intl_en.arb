@@ -35,5 +35,7 @@
   "logoutConfirmationMessage": "Are you sure you want to log out?",
   "deleteAccountDescription": "We will deactivate your account for 30 days. If you do not log in again within this period, your account will be permanently deleted from our system. Are you sure you want to delete your account?",
   "deleteAccountTitle": "Delete Account",
-  "account": "Account"
+  "account": "Account",
+  "kNoDataTitle": "No data available",
+  "kNoDataMessage": "We couldn't find any matching data"
 }

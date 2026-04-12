@@ -135,6 +135,58 @@ class AppApiService {
     );
   }
 
+  Future<ApiLeaveRequestResponse?> getLeaveRequests({
+    required int page,
+    required int limit,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/leave-requests/my-requests',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiLeaveRequestResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiLeaveCodeResponse?> getLeaveCodes() async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/leave-codes',
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiLeaveCodeResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiCreateLeaveRequestResponse?> createLeaveRequest({
+    required String dayType,
+    required String shift,
+    required String leaveCodeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.post,
+      path: '/leave-requests',
+      body: {
+        'dayType': dayType,
+        'shift': shift,
+        'leaveCodeId': leaveCodeId,
+        'startDate': startDate,
+        'endDate': endDate,
+        'reason': reason,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) => ApiCreateLeaveRequestResponse.fromJson(
+          json as Map<String, dynamic>),
+    );
+  }
+
   Future<ResultsListResponse<ApiUserData>?> getUsers({
     required int page,
     required int? limit,

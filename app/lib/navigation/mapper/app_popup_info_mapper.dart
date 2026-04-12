@@ -1,5 +1,4 @@
 import 'package:domain/domain.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
 import 'package:resources/resources.dart';
 import 'package:shared/shared.dart';
@@ -16,7 +15,7 @@ class AppPopupInfoMapper extends BasePopupInfoMapper {
           actions: [
             PopupButton(
               text: S.current.ok,
-              onPressed: onPressed ?? Func0(() => navigator.pop()),
+              onPressed: onPressed ?? Func0(() => navigator.pop(useRootNavigator: true)),
             ),
           ],
           message: message,

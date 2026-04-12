@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_hard_coded_text_style
-import 'package:flutter/material.dart';
+
 
 import '../../app.dart';
 
@@ -96,5 +96,93 @@ class AppTextStyles {
         fontSize: Dimens.d14,
         fontWeight: FontWeight.w400,
         color: color,
+      ));
+
+  static TextStyle s12w400Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d12.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w400,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s12w500Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d12.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w500,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s13w400Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d13.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w400,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s14w500Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d14.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w500,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s14w600Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d14.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w600,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s16w600Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d16.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w600,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s11w600Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d11.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w600,
+        color: AppColors.current.primaryTextColor,
+      ));
+
+  static TextStyle s32w700Primary({
+    double? tablet,
+    double? ultraTablet,
+  }) =>
+      _baseTextStyle.merge(TextStyle(
+        fontSize:
+            Dimens.d32.responsive(tablet: tablet, ultraTablet: ultraTablet),
+        fontWeight: FontWeight.w700,
+        color: AppColors.current.primaryTextColor,
       ));
 }

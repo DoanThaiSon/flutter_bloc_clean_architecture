@@ -20,11 +20,14 @@ class DateTimeUtils {
   }
 
   static DateTime toLocalFromTimestamp({required int utcTimestampMillis}) {
-    return DateTime.fromMillisecondsSinceEpoch(utcTimestampMillis, isUtc: true).toLocal();
+    return DateTime.fromMillisecondsSinceEpoch(utcTimestampMillis, isUtc: true)
+        .toLocal();
   }
 
   static DateTime toUtcFromTimestamp(int localTimestampMillis) {
-    return DateTime.fromMillisecondsSinceEpoch(localTimestampMillis, isUtc: false).toUtc();
+    return DateTime.fromMillisecondsSinceEpoch(localTimestampMillis,
+        isUtc: false)
+        .toUtc();
   }
 
   static DateTime startTimeOfDate() {
@@ -59,7 +62,8 @@ class DateTimeUtils {
     return null;
   }
 
-  static DateTime? toNormalizeDateTime(String dateTimeString, {bool isUtc = false}) {
+  static DateTime? toNormalizeDateTime(String dateTimeString,
+      {bool isUtc = false}) {
     final dateTime = DateTime.tryParse('-123450101 $dateTimeString');
     if (dateTime != null) {
       if (isUtc) {
@@ -101,6 +105,43 @@ class DateTimeUtils {
       return null;
     }
   }
+  static String formatNotificationTime(String? dateIso) {
+    if (dateIso == null || dateIso.isEmpty) {
+      return '';
+    }
+
+    try {
+      final dateTime = DateTime.parse(dateIso).toLocal();
+      final now = DateTime.now();
+
+      final isToday = dateTime.year == now.year &&
+          dateTime.month == now.month &&
+          dateTime.day == now.day;
+
+      if (isToday) {
+        return DateFormat('HH:mm').format(dateTime);
+      } else {
+        return DateFormat('dd/MM/yyyy').format(dateTime);
+      }
+    } catch (_) {
+      return '';
+    }
+  }
+
+  static String formatIsoString(
+      String? dateIso, {
+        String format = 'dd/MM/yyyy',
+      }) {
+    if (dateIso == null || dateIso.isEmpty) {
+      return '';
+    }
+    try {
+      final dt = DateTime.parse(dateIso).toLocal();
+      return DateFormat(format).format(dt);
+    } catch (_) {
+      return '';
+    }
+  }
 }
 
 extension DateTimeExtensions on DateTime {
@@ -124,7 +165,7 @@ extension DateTimeExtensions on DateTime {
       'Thứ Bảy',
       'Chủ Nhật',
     ];
-    
+
     final weekDay = weekDays[weekday - 1];
     return '$weekDay, $day Tháng $month';
   }
@@ -141,11 +182,12 @@ extension DateTimeExtensions on DateTime {
       'Thứ Bảy',
       'Chủ Nhật',
     ];
-    
+
     final weekDay = weekDays[weekday - 1];
     return '$weekDay, $day Tháng $month Năm $year';
   }
 }
+
 
 extension DateTimeTimezoneExtension on DateTime {
   Map<String, tz.Location> get getTimeZoneDatabase {
@@ -164,19 +206,21 @@ extension DateTimeTimezoneExtension on DateTime {
 
   DateTime toESTzone(String locationName) {
     DateTime result = toUtc(); // local time to UTC
-    result =
-        result.add(Duration(hours: _getESTtoUTCDifference(locationName))); // convert UTC to EST
+    result = result.add(Duration(
+        hours: _getESTtoUTCDifference(locationName))); // convert UTC to EST
 
     return result;
   }
 
   DateTime fromESTzone(String locationName) {
-    DateTime result =
-        subtract(Duration(hours: _getESTtoUTCDifference(locationName))); // convert EST to UTC
+    DateTime result = subtract(Duration(
+        hours: _getESTtoUTCDifference(locationName))); // convert EST to UTC
 
     String dateTimeAsIso8601String = result.toIso8601String();
     dateTimeAsIso8601String +=
-        dateTimeAsIso8601String.characters.last.equalsIgnoreCase('Z') ? '' : 'Z';
+    dateTimeAsIso8601String.characters.last.equalsIgnoreCase('Z')
+        ? ''
+        : 'Z';
     result = DateTime.parse(dateTimeAsIso8601String); // make isUtc to be true
 
     result = result.toLocal(); // convert UTC to local time

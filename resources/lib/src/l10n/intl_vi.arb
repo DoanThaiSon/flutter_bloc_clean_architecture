@@ -35,5 +35,7 @@
   "logoutConfirmationMessage": "Bạn có thực sự muốn đăng xuất?",
   "deleteAccountDescription":"Chúng tôi sẽ khoá tài khoản của bạn trong 30 ngày. Sau 30 ngày bạn không đăng nhập lại, tài khoản của bạn sẽ bị xóa vĩnh viễn khỏi hệ thống. Bạn có chắc muốn xóa tài khoản?",
   "deleteAccountTitle":"Xóa tài khoản",
-  "account": "Tài khoản"
+  "account": "Tài khoản",
+  "kNoDataTitle": "Không có dữ liệu",
+  "kNoDataMessage":"Chúng tôi không tìm thấy dữ liệu phù hợp"
 }

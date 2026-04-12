@@ -14,4 +14,6 @@ class AppRouteInfo with _$AppRouteInfo {
   const factory AppRouteInfo.homeAttendance() = _HomeAttendance;
   const factory AppRouteInfo.historyAttendance() = _HistoryAttendance;
   const factory AppRouteInfo.profileAttendance() = _ProfileAttendance;
+  const factory AppRouteInfo.leaveRequest() = _LeaveRequest;
+  const factory AppRouteInfo.createLeaveRequest() = CreateLeaveRequest;
 }

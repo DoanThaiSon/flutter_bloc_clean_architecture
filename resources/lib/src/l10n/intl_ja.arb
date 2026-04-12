@@ -35,5 +35,7 @@
   "logoutConfirmationMessage": "本当にログアウトしますか？",
   "deleteAccountDescription": "アカウントは30日間ロックされます。30日以内に再ログインしない場合、データは完全に削除されます。本当に削除しますか？",
   "deleteAccountTitle": "アカウント削除",
-  "account": "アカウント"
+  "account": "アカウント",
+  "kNoDataTitle": "データがありません",
+  "kNoDataMessage": "一致するデータが見つかりませんでした"
 }

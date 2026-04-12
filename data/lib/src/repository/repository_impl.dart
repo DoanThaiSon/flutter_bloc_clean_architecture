@@ -16,6 +16,9 @@ class RepositoryImpl implements Repository {
     this._loginUserDataMapper,
     this._attendanceResponseDataMapper,
     this._checkoutResponseDataMapper,
+    this._leaveRequestResponseDataMapper,
+    this._leaveCodeResponseDataMapper,
+    this._createLeaveRequestResponseDataMapper,
   );
 
   final AppApiService _appApiService;
@@ -28,6 +31,10 @@ class RepositoryImpl implements Repository {
   final ApiLoginUserDataMapper _loginUserDataMapper;
   final ApiAttendanceResponseDataMapper _attendanceResponseDataMapper;
   final ApiCheckoutResponseDataMapper _checkoutResponseDataMapper;
+  final ApiLeaveRequestResponseDataMapper _leaveRequestResponseDataMapper;
+  final ApiLeaveCodeResponseDataMapper _leaveCodeResponseDataMapper;
+  final ApiCreateLeaveRequestResponseDataMapper
+      _createLeaveRequestResponseDataMapper;
 
   @override
   bool get isLoggedIn => _appPreferences.isLoggedIn;
@@ -165,6 +172,44 @@ class RepositoryImpl implements Repository {
       longitude: longitude,
     );
     return _checkoutResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<LeaveRequestResponse> getLeaveRequests({
+    required int page,
+    required int limit,
+  }) async {
+    final response = await _appApiService.getLeaveRequests(
+      page: page,
+      limit: limit,
+    );
+    return _leaveRequestResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<LeaveCodeResponse> getLeaveCodes() async {
+    final response = await _appApiService.getLeaveCodes();
+    return _leaveCodeResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<CreateLeaveRequestResponse> createLeaveRequest({
+    required String dayType,
+    required String shift,
+    required String leaveCodeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+  }) async {
+    final response = await _appApiService.createLeaveRequest(
+      dayType: dayType,
+      shift: shift,
+      leaveCodeId: leaveCodeId,
+      startDate: startDate,
+      endDate: endDate,
+      reason: reason,
+    );
+    return _createLeaveRequestResponseDataMapper.mapToEntity(response);
   }
 
   @override

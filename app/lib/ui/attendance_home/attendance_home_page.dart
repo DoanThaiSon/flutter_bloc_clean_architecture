@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 import '../../app.dart';
@@ -167,10 +168,14 @@ class _AttendanceHomePageState
   }
 
   String _formatTime(DateTime? dateTime) {
-    final hour = dateTime?.hour.toString().padLeft(2, '0');
-    final minute = dateTime?.minute.toString().padLeft(2, '0');
+    if (dateTime == null) {
+      return '--:--';
+    } else {
+      final hour = dateTime.hour.toString().padLeft(2, '0');
+      final minute = dateTime.minute.toString().padLeft(2, '0');
 
-    return '$hour:$minute';
+      return '$hour:$minute';
+    }
   }
 
   String formatWorkingHours(double hours) {
@@ -313,36 +318,41 @@ class _AttendanceHomePageState
             color: AppColors.current.whiteColor,
             borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: Dimens.d50.responsive(),
-                height: Dimens.d50.responsive(),
-                padding: EdgeInsets.all(Dimens.d8.responsive()),
-                decoration: const BoxDecoration(
-                  color: AppColors.neutral200,
-                  shape: BoxShape.circle,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(Dimens.d4.responsive()),
-                  child: Image.asset(
-                    Assets.images.icons.triangleWarning.path,
-                    width: Dimens.d30.responsive(),
-                    height: Dimens.d30.responsive(),
+          child: GestureDetector(
+            onTap: () {
+              navigator.push(const AppRouteInfo.leaveRequest());
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: Dimens.d50.responsive(),
+                  height: Dimens.d50.responsive(),
+                  padding: EdgeInsets.all(Dimens.d8.responsive()),
+                  decoration: const BoxDecoration(
+                    color: AppColors.neutral100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(Dimens.d4.responsive()),
+                    child: Image.asset(
+                      Assets.images.icons.triangleWarning.path,
+                      width: Dimens.d30.responsive(),
+                      height: Dimens.d30.responsive(),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: Dimens.d5.responsive(),
-              ),
-              Text(
-                'Xin nghỉ',
-                style: AppTextStyles.titleTextDefault(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.current.blackColor),
-              )
-            ],
+                SizedBox(
+                  height: Dimens.d5.responsive(),
+                ),
+                Text(
+                  'Xin nghỉ',
+                  style: AppTextStyles.titleTextDefault(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.current.blackColor),
+                )
+              ],
+            ),
           ),
         ),
       ],
