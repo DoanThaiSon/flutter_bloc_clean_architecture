@@ -1,0 +1,505 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../app.dart';
+import '../../common_view/common_text_field.dart';
+import '../../common_view/ui_button.dart';
+import 'bloc/create_leave_request.dart';
+
+@RoutePage()
+class CreateLeaveRequestPage extends StatefulWidget {
+  const CreateLeaveRequestPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CreateLeaveRequestPageState();
+  }
+}
+
+class _CreateLeaveRequestPageState
+    extends BasePageState<CreateLeaveRequestPage, CreateLeaveRequestBloc> {
+  final TextEditingController _reasonController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    bloc.add(const CreateLeaveRequestPageInitiated());
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget buildPage(BuildContext context) {
+    return CommonScaffold(
+      hideKeyboardWhenTouchOutside: true,
+      backgroundColor: AppColors.current.backgroundLayer1,
+      appBar: CommonAppBar(
+        text: 'Đăng ký xin nghỉ',
+        leadingIcon: LeadingIcon.newBack,
+        onLeadingPressed: () => navigator.pop(useRootNavigator: true),
+      ),
+      body: BlocBuilder<CreateLeaveRequestBloc, CreateLeaveRequestState>(
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(Dimens.d16.responsive()),
+            child: Container(
+              padding: EdgeInsets.all(Dimens.d16.responsive()),
+              decoration: BoxDecoration(
+                  color: AppColors.current.whiteColor,
+                  borderRadius: BorderRadius.circular(Dimens.d16.responsive())),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLeaveTypeSection(state),
+                  if (state.selectedLeaveType != null) ...[
+                    SizedBox(height: Dimens.d16.responsive()),
+                    _buildShiftSection(state),
+                    SizedBox(height: Dimens.d16.responsive()),
+                    _buildLeaveCodeSection(state),
+                  ],
+                  if (state.selectedLeaveCode != null) ...[
+                    SizedBox(height: Dimens.d16.responsive()),
+                    _buildDateSection(state),
+                  ],
+                  if (state.selectedDate != null ||
+                      (state.startDate != null && state.endDate != null)) ...[
+                    SizedBox(height: Dimens.d16.responsive()),
+                    _buildTotalDaysSection(state),
+                    SizedBox(height: Dimens.d16.responsive()),
+                    _buildReasonSection(state),
+                    SizedBox(height: Dimens.d24.responsive()),
+                    _buildSubmitButton(state),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLeaveTypeSection(CreateLeaveRequestState state) {
+    return _buildSection(
+      title: 'Loại ngày nghỉ',
+      required: true,
+      child: _buildDropdown(
+        hint: 'Chọn loại ngày nghỉ',
+        value: state.selectedLeaveType,
+        items: const ['Nghỉ 1 ngày', 'Nghỉ nhiều ngày', 'Nghỉ nửa ngày'],
+        onChanged: (value) {
+          bloc.add(LeaveTypeChanged(leaveType: value));
+        },
+      ),
+    );
+  }
+
+  Widget _buildShiftSection(CreateLeaveRequestState state) {
+    final isFullDay = state.selectedLeaveType == 'Nghỉ 1 ngày' ||
+        state.selectedLeaveType == 'Nghỉ nhiều ngày';
+
+    return _buildSection(
+      title: 'Ca nghỉ',
+      required: true,
+      child: isFullDay
+          ? _buildDisabledField('Cả ngày')
+          : _buildDropdown(
+              hint: 'Chọn ca nghỉ',
+              value: state.selectedShift,
+              items: const ['Ca sáng', 'Ca chiều'],
+              onChanged: (value) {
+                bloc.add(ShiftChanged(shift: value));
+              },
+            ),
+    );
+  }
+
+  Widget _buildLeaveCodeSection(CreateLeaveRequestState state) {
+    final leaveCodeNames =
+        state.leaveCodes.map((code) => code.name).toList();
+
+    return _buildSection(
+      title: 'Mã xin nghỉ',
+      required: true,
+      child: leaveCodeNames.isEmpty
+          ? Container(
+              height: Dimens.d56.responsive(),
+              padding:
+                  EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
+              decoration: BoxDecoration(
+                color: AppColors.current.grayColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+                border: Border.all(
+                  color: AppColors.current.borderDefaultColor,
+                ),
+              ),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Đang tải...',
+                style: AppTextStyles.titleTextDefault(
+                  fontSize: Dimens.d14.responsive(),
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.current.secondaryTextColor,
+                ),
+              ),
+            )
+          : _buildDropdown(
+              hint: 'Chọn mã xin nghỉ',
+              value: state.selectedLeaveCode,
+              items: leaveCodeNames,
+              onChanged: (value) {
+                bloc.add(LeaveCodeChanged(leaveCode: value));
+              },
+            ),
+    );
+  }
+
+  Widget _buildDateSection(CreateLeaveRequestState state) {
+    final isMultipleDays = state.selectedLeaveType == 'Nghỉ nhiều ngày';
+
+    if (isMultipleDays) {
+      return Column(
+        children: [
+          _buildSection(
+            title: 'Ngày bắt đầu',
+            required: true,
+            child: GestureDetector(
+              onTap: () => _selectStartDate(context, state),
+              child: _buildDateField(
+                date: state.startDate,
+                hint: 'Chọn ngày bắt đầu',
+              ),
+            ),
+          ),
+          SizedBox(height: Dimens.d16.responsive()),
+          _buildSection(
+            title: 'Ngày kết thúc',
+            required: true,
+            child: GestureDetector(
+              onTap: state.startDate != null
+                  ? () => _selectEndDate(context, state)
+                  : null,
+              child: _buildDateField(
+                date: state.endDate,
+                hint: 'Chọn ngày kết thúc',
+                enabled: state.startDate != null,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return _buildSection(
+        title: 'Ngày xin nghỉ',
+        required: true,
+        child: GestureDetector(
+          onTap: () => _selectDate(context, state),
+          child: _buildDateField(
+            date: state.selectedDate,
+            hint: 'Chọn ngày',
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildDateField({
+    required DateTime? date,
+    required String hint,
+    bool enabled = true,
+  }) {
+    return Container(
+      height: Dimens.d56.responsive(),
+      padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
+      decoration: BoxDecoration(
+        color: enabled
+            ? AppColors.current.whiteColor
+            : AppColors.current.grayColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+        border: Border.all(
+          color: AppColors.current.borderDefaultColor,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            date != null ? _formatDate(date) : hint,
+            style: AppTextStyles.titleTextDefault(
+              fontSize: Dimens.d14.responsive(),
+              fontWeight: FontWeight.w400,
+              color: date != null
+                  ? AppColors.current.primaryTextColor
+                  : AppColors.current.secondaryTextColor,
+            ),
+          ),
+          Icon(
+            Icons.calendar_today,
+            size: Dimens.d20.responsive(),
+            color: AppColors.current.secondaryTextColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalDaysSection(CreateLeaveRequestState state) {
+    return _buildSection(
+      title: 'Tổng số ngày',
+      required: false,
+      child: _buildDisabledField('${state.totalDays} ngày'),
+    );
+  }
+
+  Widget _buildReasonSection(CreateLeaveRequestState state) {
+    return _buildSection(
+      title: 'Lý do đăng ký nghỉ',
+      required: true,
+      child: Container(
+        constraints: BoxConstraints(
+          minHeight: Dimens.d120.responsive(),
+        ),
+        child: CommonTextField(
+          controller: _reasonController,
+          hintText: 'Nhập lý do xin nghỉ của bạn...',
+          minLines: 5,
+          maxLines: 8,
+          height: null,
+          keyboardType: TextInputType.multiline,
+          onChanged: (value) => bloc.add(ReasonChanged(reason: value)),
+          hintStyle: AppTextStyles.titleTextDefault(
+            fontSize: Dimens.d14.responsive(),
+            fontWeight: FontWeight.w400,
+            color: AppColors.current.secondaryTextColor,
+          ),
+          textStyle: AppTextStyles.titleTextDefault(
+            fontSize: Dimens.d14.responsive(),
+            fontWeight: FontWeight.w400,
+            color: AppColors.current.primaryTextColor,
+          ),
+          borderColor: AppColors.current.borderDefaultColor,
+          contentPadding: EdgeInsets.all(Dimens.d12.responsive()),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(CreateLeaveRequestState state) {
+    return UIButton(
+      height: Dimens.d56.responsive(),
+      width: double.infinity,
+      text: 'Gửi đơn đăng ký',
+      textSize: Dimens.d16.responsive(),
+      fontWeight: FontWeight.w700,
+      radius: Dimens.d12.responsive(),
+      enableShadow: false,
+      color: state.isFormValid
+          ? AppColors.current.blue500Color
+          : AppColors.current.secondaryTextColor,
+      textColor: AppColors.current.whiteColor,
+      onTap: state.isFormValid
+          ? () => bloc.add(const SubmitButtonPressed())
+          : null,
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required bool required,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.titleTextDefault(
+                fontSize: Dimens.d14.responsive(),
+                fontWeight: FontWeight.w600,
+                color: AppColors.current.blackColor,
+              ),
+            ),
+            if (required) ...[
+              SizedBox(width: Dimens.d4.responsive()),
+              Text(
+                '*',
+                style: AppTextStyles.titleTextDefault(
+                  fontSize: Dimens.d14.responsive(),
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.current.redColor,
+                ),
+              ),
+            ],
+          ],
+        ),
+        SizedBox(height: Dimens.d8.responsive()),
+        child,
+      ],
+    );
+  }
+
+  Widget _buildDropdown({
+    required String hint,
+    required String? value,
+    required List<String> items,
+    required Function(String) onChanged,
+  }) {
+    return Container(
+      height: Dimens.d56.responsive(),
+      padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
+      decoration: BoxDecoration(
+        color: AppColors.current.whiteColor,
+        borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+        border: Border.all(
+          color: AppColors.current.borderDefaultColor,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          isExpanded: true,
+          hint: Text(
+            hint,
+            style: AppTextStyles.titleTextDefault(
+              fontSize: Dimens.d14.responsive(),
+              fontWeight: FontWeight.w400,
+              color: AppColors.current.secondaryTextColor,
+            ),
+          ),
+          value: value,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: Dimens.d24.responsive(),
+            color: AppColors.current.secondaryTextColor,
+          ),
+          style: AppTextStyles.titleTextDefault(
+            fontSize: Dimens.d14.responsive(),
+            fontWeight: FontWeight.w400,
+            color: AppColors.current.blackColor,
+          ),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              onChanged(newValue);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisabledField(String text) {
+    return Container(
+      height: Dimens.d56.responsive(),
+      padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
+      decoration: BoxDecoration(
+        color: AppColors.current.grayColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+        border: Border.all(
+          color: AppColors.current.borderDefaultColor,
+        ),
+      ),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: AppTextStyles.titleTextDefault(
+          fontSize: Dimens.d14.responsive(),
+          fontWeight: FontWeight.w400,
+          color: AppColors.current.secondaryTextColor,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDate(
+      BuildContext context, CreateLeaveRequestState state) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: state.selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.current.blue500Color,
+              onPrimary: AppColors.current.whiteColor,
+              onSurface: AppColors.current.primaryTextColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      bloc.add(DateChanged(date: picked));
+    }
+  }
+
+  Future<void> _selectStartDate(
+      BuildContext context, CreateLeaveRequestState state) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: state.startDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.current.blue500Color,
+              onPrimary: AppColors.current.whiteColor,
+              onSurface: AppColors.current.primaryTextColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      bloc.add(StartDateChanged(date: picked));
+    }
+  }
+
+  Future<void> _selectEndDate(
+      BuildContext context, CreateLeaveRequestState state) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate:
+          state.endDate ?? state.startDate!.add(const Duration(days: 1)),
+      firstDate: state.startDate!,
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.current.blue500Color,
+              onPrimary: AppColors.current.whiteColor,
+              onSurface: AppColors.current.primaryTextColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      bloc.add(EndDateChanged(date: picked));
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+}
