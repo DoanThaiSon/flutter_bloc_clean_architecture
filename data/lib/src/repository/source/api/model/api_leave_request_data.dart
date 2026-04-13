@@ -24,8 +24,10 @@ class ApiLeaveRequestData with _$ApiLeaveRequestData {
   const factory ApiLeaveRequestData({
     @JsonKey(name: '_id') String? id,
     @JsonKey(name: 'userId') String? userId,
+    @JsonKey(name: 'dayType') String? dayType,
+    @JsonKey(name: 'shift') String? shift,
     @JsonKey(name: 'creatorName') String? creatorName,
-    @JsonKey(name: 'leaveType') String? leaveType,
+    @JsonKey(name: 'leaveCodeId') String? leaveCodeId,
     @JsonKey(name: 'startDate') String? startDate,
     @JsonKey(name: 'endDate') String? endDate,
     @JsonKey(name: 'totalDays') int? totalDays,

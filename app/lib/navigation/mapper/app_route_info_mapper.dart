@@ -17,7 +17,7 @@ class AppRouteInfoMapper extends BaseRouteInfoMapper {
         historyAttendance: () => const AttendanceHistoryRoute(),
         profileAttendance: () => const AttendanceProfileRoute(),
         leaveRequest: () => const LeaveRequestRoute(),
-        createLeaveRequest: () => const CreateLeaveRequestRoute()
+        createLeaveRequest: (leaveRequest) => CreateLeaveRequestRoute(leaveRequest: leaveRequest)
     );
   }
 }

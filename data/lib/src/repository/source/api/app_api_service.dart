@@ -119,6 +119,7 @@ class AppApiService {
           ApiCheckoutResponseData.fromJson(json as Map<String, dynamic>),
     );
   }
+
   Future<ApiCheckoutResponseData?> checkIn({
     required double latitude,
     required double longitude,
@@ -143,6 +144,25 @@ class AppApiService {
       method: RestMethod.get,
       path: '/leave-requests/my-requests',
       queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiLeaveRequestResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiLeaveRequestResponse?> getAllLeaveRequests({
+    required int page,
+    required int limit,
+    String? status,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/leave-requests/all',
+      queryParameters: {
+        if (status != null) 'status': status,
         'page': page,
         'limit': limit,
       },
@@ -182,8 +202,55 @@ class AppApiService {
         'reason': reason,
       },
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
-      decoder: (json) => ApiCreateLeaveRequestResponse.fromJson(
-          json as Map<String, dynamic>),
+      decoder: (json) =>
+          ApiCreateLeaveRequestResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<void> approveLeaveRequest(String leaveRequestsId) async {
+    await _authAppServerApiClient.request(
+      method: RestMethod.put,
+      path: '/leave-requests/${leaveRequestsId}/approve',
+    );
+  }
+
+  Future<void> rejectLeaveRequest(String leaveRequestsId, String rejectionReason) async {
+    await _authAppServerApiClient.request(
+      method: RestMethod.put,
+      path: '/leave-requests/${leaveRequestsId}/reject',
+      body: {
+        'rejectionReason': rejectionReason,
+      },
+    );
+  }
+
+  Future<void> deleteLeaveRequest(String leaveRequestsId) async {
+    await _authAppServerApiClient.request(
+      method: RestMethod.delete,
+      path: '/leave-requests/$leaveRequestsId',
+    );
+  }
+
+  Future<void> updateLeaveRequest({
+    required String leaveRequestsId,
+    required String dayType,
+    required String shift,
+    required String leaveCodeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+  }) async {
+    await _authAppServerApiClient.request(
+      method: RestMethod.put,
+      path: '/leave-requests/$leaveRequestsId',
+      body: {
+        'dayType': dayType,
+        'shift': shift,
+        'leaveCodeId': leaveCodeId,
+        'startDate': startDate,
+        'endDate': endDate,
+        'reason': reason,
+      },
     );
   }
 

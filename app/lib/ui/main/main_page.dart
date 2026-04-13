@@ -1,9 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:domain/domain.dart';
-import 'package:flutter/material.dart';
 
 import '../../app.dart';
 import 'bloc/main.dart';
+import 'widgets/custom_bottom_navigation_bar.dart';
 
 @RoutePage()
 class MainPage extends StatefulWidget {
@@ -16,8 +15,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends BasePageState<MainPage, MainBloc> {
-  final _bottomBarKey = GlobalKey();
-
   @override
   Widget buildPage(BuildContext context) {
     return AutoTabsScaffold(
@@ -25,34 +22,14 @@ class _MainPageState extends BasePageState<MainPage, MainBloc> {
       bottomNavigationBuilder: (_, tabsRouter) {
         (navigator as AppNavigatorImpl).tabsRouter = tabsRouter;
 
-        return BottomNavigationBar(
-          key: _bottomBarKey,
-          currentIndex: tabsRouter.activeIndex,
+        return CustomBottomNavigationBar(
+          tabsRouter: tabsRouter,
           onTap: (index) {
             if (index == tabsRouter.activeIndex) {
               (navigator as AppNavigatorImpl).popUntilRootOfCurrentBottomTab();
             }
             tabsRouter.setActiveIndex(index);
           },
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          selectedLabelStyle: AppTextStyles.body2SemiBold(
-              color: AppColors.current.textLinkColor),
-          unselectedLabelStyle: AppTextStyles.body2SemiBold(
-              color: AppColors.current.secondaryTextColor),
-          selectedItemColor: AppColors.current.textLinkColor,
-          unselectedItemColor: AppColors.current.secondaryTextColor,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: AppColors.current.whiteColor,
-          items: BottomTab.values
-              .map(
-                (tab) => BottomNavigationBarItem(
-                  label: tab.title,
-                  icon: tab.icon,
-                  activeIcon: tab.activeIcon,
-                ),
-              )
-              .toList(),
         );
       },
     );

@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_hard_coded_text_style
 
-
 import '../../app.dart';
 
 /// AppTextStyle format as follows:
@@ -25,7 +24,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d14.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w400,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s14w400Secondary({
@@ -39,17 +38,20 @@ class AppTextStyles {
         color: AppColors.current.secondaryTextColor,
       ));
 
-  static TextStyle titleTextDefault(
-          {Color? color,
-          double? fontSize,
-          FontWeight? fontWeight,
-          TextDecoration? decoration}) =>
+  static TextStyle titleTextDefault({
+    Color? color,
+    double? fontSize,
+    FontWeight? fontWeight,
+    TextDecoration? decoration,
+    double? tablet,
+    double? ultraTablet,
+  }) =>
       _baseTextStyle.merge(TextStyle(
         decoration: decoration,
-        fontSize: fontSize ?? Dimens.d14,
+        fontSize: fontSize ??
+            Dimens.d14.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: fontWeight ?? FontWeight.w400,
-        fontFamily: 'Inter Tight',
-        color: color ?? AppColors.defaultAppColor.primaryColor,
+        color: color ?? AppColors.defaultAppColor.blackColor,
       ));
 
   static TextStyle s24w500Primary({
@@ -106,7 +108,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d12.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w400,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s12w500Primary({
@@ -117,7 +119,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d12.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w500,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s13w400Primary({
@@ -128,7 +130,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d13.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w400,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s14w500Primary({
@@ -139,7 +141,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d14.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w500,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s14w600Primary({
@@ -150,7 +152,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d14.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w600,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s16w600Primary({
@@ -161,7 +163,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d16.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w600,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s11w600Primary({
@@ -172,7 +174,7 @@ class AppTextStyles {
         fontSize:
             Dimens.d11.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w600,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 
   static TextStyle s32w700Primary({
@@ -183,6 +185,6 @@ class AppTextStyles {
         fontSize:
             Dimens.d32.responsive(tablet: tablet, ultraTablet: ultraTablet),
         fontWeight: FontWeight.w700,
-        color: AppColors.current.primaryTextColor,
+        color: AppColors.current.blackColor,
       ));
 }

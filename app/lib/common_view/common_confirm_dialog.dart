@@ -65,10 +65,14 @@ class CustomConfirmDialog extends StatelessWidget {
             radius: Dimens.d8.responsive(),
             enableShadow: false,
             height: Dimens.d44.responsive(),
-            border: Border.all(color: AppColors.current.orangeColor, width: Dimens.d1.responsive()),
+            border: Border.all(
+              color: AppColors.neutral300,
+              width: Dimens.d1.responsive(),
+            ),
             onTap: onCancel,
             text: cancelText ?? S.current.cancel,
-            textColor: AppColors.current.orangeColor,
+            textColor: AppColors.current.blackColor,
+            color: AppColors.current.whiteColor,
           ),
         ),
       );
@@ -84,7 +88,7 @@ class CustomConfirmDialog extends StatelessWidget {
           child: UIButton(
             height: Dimens.d44.responsive(),
             radius: Dimens.d8.responsive(),
-            color: AppColors.current.textLinkColor,
+            color: AppColors.current.completeTextColor,
             enableShadow: false,
             onTap: onConfirm,
             text: confirmText ?? S.current.confirm,

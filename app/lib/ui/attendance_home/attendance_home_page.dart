@@ -3,6 +3,7 @@ import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 import '../../app.dart';
+import '../../common_view/popup/common_show_snack_bar.dart';
 import '../../common_view/ui_button.dart';
 import 'bloc/attendance_home.dart';
 
@@ -28,7 +29,17 @@ class _AttendanceHomePageState
   Widget buildPage(BuildContext context) {
     return CommonScaffold(
       backgroundColor: AppColors.current.backgroundLayer1,
-      body: BlocBuilder<AttendanceHomeBloc, AttendanceHomeState>(
+      body: BlocConsumer<AttendanceHomeBloc, AttendanceHomeState>(
+          listener: (context, state) {
+            if (state.checkInStatus == LoadDataStatus.success ||
+                state.checkOutStatus == LoadDataStatus.success) {
+              showAppSnackBar(
+                context,
+                message: 'Chấm công thành công',
+                backgroundColor: AppColors.current.blackColor,
+              );
+            }
+          },
           buildWhen: (previous, current) =>
               previous.currentTime != current.currentTime ||
               previous.user != current.user ||
@@ -39,22 +50,28 @@ class _AttendanceHomePageState
               previous.attendance?.timeline != previous.attendance?.timeline,
           builder: (context, state) {
             return SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(Dimens.d16.responsive()),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(state),
-                      SizedBox(height: Dimens.d24.responsive()),
-                      _buildDateDisplay(),
-                      SizedBox(height: Dimens.d24.responsive()),
-                      _buildTimeCard(state),
-                      SizedBox(
-                        height: Dimens.d24.responsive(),
-                      ),
-                      _buildWorkManagement(state)
-                    ],
+              child: RefreshIndicator(
+                color: AppColors.current.blackColor,
+                onRefresh: () async {
+                  bloc.add(const AttendanceHomePageInitiated());
+                },
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(Dimens.d16.responsive()),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(state),
+                        SizedBox(height: Dimens.d24.responsive()),
+                        _buildDateDisplay(),
+                        SizedBox(height: Dimens.d24.responsive()),
+                        _buildTimeCard(state),
+                        SizedBox(
+                          height: Dimens.d24.responsive(),
+                        ),
+                        _buildWorkManagement(state)
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -74,7 +91,7 @@ class _AttendanceHomePageState
               height: Dimens.d40.responsive(),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.current.blue500Color,
+                color: AppColors.current.blackColor,
               ),
               child: Icon(
                 Icons.person,
@@ -90,7 +107,7 @@ class _AttendanceHomePageState
         ),
         Icon(
           Icons.notifications,
-          color: AppColors.current.blue500Color,
+          color: AppColors.current.blackColor,
           size: Dimens.d24.responsive(),
         ),
       ],
@@ -116,7 +133,7 @@ class _AttendanceHomePageState
       style: AppTextStyles.titleTextDefault(
         fontSize: Dimens.d24.responsive(),
         fontWeight: FontWeight.w700,
-        color: AppColors.current.blue500Color,
+        color: AppColors.current.blackColor,
       ),
     );
   }
@@ -153,7 +170,7 @@ class _AttendanceHomePageState
                 style: AppTextStyles.titleTextDefault(
                   fontSize: Dimens.d56.responsive(),
                   fontWeight: FontWeight.w700,
-                  color: AppColors.current.blue500Color,
+                  color: AppColors.current.blackColor,
                 ),
               ),
               SizedBox(
@@ -194,8 +211,8 @@ class _AttendanceHomePageState
               child: _buildActionButton(
                 icon: Icons.login,
                 label: 'GIỜ VÀO',
-                colorIcon: AppColors.current.blue500Color,
-                textColor: AppColors.current.blue500Color,
+                colorIcon: AppColors.current.blackColor,
+                textColor: AppColors.current.blackColor,
                 time: _formatTime(state.attendance?.checkInTime),
               ),
             ),
@@ -292,7 +309,7 @@ class _AttendanceHomePageState
             style: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d18.responsive(),
               fontWeight: FontWeight.w700,
-              color: AppColors.current.primaryTextColor,
+              color: AppColors.current.blackColor,
             ),
           ),
         ],

@@ -69,9 +69,38 @@ abstract class Repository {
     required int limit,
   });
 
+  Future<LeaveRequestResponse> getAllLeaveRequests({
+    required int page,
+    required int limit,
+    String? status
+  });
+
   Future<LeaveCodeResponse> getLeaveCodes();
 
   Future<CreateLeaveRequestResponse> createLeaveRequest({
+    required String dayType,
+    required String shift,
+    required String leaveCodeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+  });
+
+  Future<void> approveLeaveRequest({
+    required String leaveRequestId,
+  });
+
+  Future<void> rejectLeaveRequest({
+    required String leaveRequestId,
+    required String rejectionReason,
+  });
+
+  Future<void> deleteLeaveRequest({
+    required String leaveRequestId,
+  });
+
+  Future<void> updateLeaveRequest({
+    required String leaveRequestId,
     required String dayType,
     required String shift,
     required String leaveCodeId,

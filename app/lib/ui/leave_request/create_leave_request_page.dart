@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../app.dart';
 import '../../common_view/common_text_field.dart';
+import '../../common_view/popup/common_show_snack_bar.dart';
 import '../../common_view/ui_button.dart';
 import 'bloc/leave_request_bloc.dart';
 import 'bloc/leave_request_event.dart';
@@ -9,7 +11,12 @@ import 'bloc/leave_request_state.dart';
 
 @RoutePage()
 class CreateLeaveRequestPage extends StatefulWidget {
-  const CreateLeaveRequestPage({super.key});
+  const CreateLeaveRequestPage({
+    super.key,
+    this.leaveRequest,
+  });
+
+  final LeaveRequest? leaveRequest;
 
   @override
   State<StatefulWidget> createState() {
@@ -20,11 +27,67 @@ class CreateLeaveRequestPage extends StatefulWidget {
 class _CreateLeaveRequestPageState
     extends BasePageState<CreateLeaveRequestPage, LeaveRequestBloc> {
   final TextEditingController _reasonController = TextEditingController();
+  bool _hasSetLeaveCode = false;
+
+  bool get isEditMode => widget.leaveRequest != null;
 
   @override
   void initState() {
     super.initState();
     bloc.add(const GetLeaveCodes());
+  }
+
+  void _loadLeaveRequestData() {
+    final request = widget.leaveRequest!;
+    _reasonController.text = request.reason;
+    String leaveType;
+    if (request.dayType == 'full_day') {
+      if (request.startDate == request.endDate) {
+        leaveType = 'Nghỉ 1 ngày';
+      } else {
+        leaveType = 'Nghỉ nhiều ngày';
+      }
+    } else {
+      leaveType = 'Nghỉ nửa ngày';
+    }
+
+    // Determine shift
+    String? shift;
+    if (request.dayType == 'full_day') {
+      shift = 'Cả ngày';
+    } else {
+      shift = request.shift == 'morning' ? 'Ca sáng' : 'Ca chiều';
+    }
+
+    // Parse dates
+    DateTime? selectedDate;
+    DateTime? startDate;
+    DateTime? endDate;
+
+    if (leaveType == 'Nghỉ nhiều ngày') {
+      startDate = DateTime.parse(request.startDate);
+      endDate = DateTime.parse(request.endDate);
+    } else {
+      selectedDate = DateTime.parse(request.startDate);
+    }
+
+    final leaveCode = bloc.state.leaveCodes.firstWhere(
+      (code) => code.id == request.leaveCodeId,
+      orElse: () => bloc.state.leaveCodes.isNotEmpty
+          ? bloc.state.leaveCodes.first
+          : const LeaveCode(),
+    );
+
+    bloc.add(LoadLeaveRequestForEdit(
+      leaveType: leaveType,
+      shift: shift,
+      leaveCodeId: request.leaveCodeId,
+      leaveCodeName: leaveCode.name,
+      selectedDate: selectedDate,
+      startDate: startDate,
+      endDate: endDate,
+      reason: request.reason,
+    ));
   }
 
   @override
@@ -39,47 +102,73 @@ class _CreateLeaveRequestPageState
       hideKeyboardWhenTouchOutside: true,
       backgroundColor: AppColors.current.backgroundLayer1,
       appBar: CommonAppBar(
-        text: 'Đăng ký xin nghỉ',
+        text: isEditMode ? 'Sửa đơn xin nghỉ' : 'Đăng ký xin nghỉ',
         leadingIcon: LeadingIcon.newBack,
         onLeadingPressed: () => navigator.pop(useRootNavigator: true),
       ),
-      body: BlocBuilder<LeaveRequestBloc, LeaveRequestState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(Dimens.d16.responsive()),
-            child: Container(
-              padding: EdgeInsets.all(Dimens.d16.responsive()),
-              decoration: BoxDecoration(
-                  color: AppColors.current.whiteColor,
-                  borderRadius: BorderRadius.circular(Dimens.d16.responsive())),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildLeaveTypeSection(state),
-                  if (state.selectedLeaveType != null) ...[
-                    SizedBox(height: Dimens.d16.responsive()),
-                    _buildShiftSection(state),
-                    SizedBox(height: Dimens.d16.responsive()),
-                    _buildLeaveCodeSection(state),
-                  ],
-                  if (state.selectedLeaveCode != null) ...[
-                    SizedBox(height: Dimens.d16.responsive()),
-                    _buildDateSection(state),
-                  ],
-                  if (state.selectedDate != null ||
-                      (state.startDate != null && state.endDate != null)) ...[
-                    SizedBox(height: Dimens.d16.responsive()),
-                    _buildTotalDaysSection(state),
-                    SizedBox(height: Dimens.d16.responsive()),
-                    _buildReasonSection(state),
-                    SizedBox(height: Dimens.d24.responsive()),
-                    _buildSubmitButton(state),
-                  ],
-                ],
-              ),
-            ),
-          );
+      body: BlocListener<LeaveRequestBloc, LeaveRequestState>(
+        listener: (context, state) {
+          if (state.createLeaveRequestStatus == LoadDataStatus.success) {
+            showAppSnackBar(
+              context,
+              message: 'Tạo đơn nghỉ phép thành công',
+              backgroundColor: AppColors.current.blackColor,
+            );
+          }
+          if (state.updateLeaveRequestStatus == LoadDataStatus.success) {
+            showAppSnackBar(
+              context,
+              message: 'Cập nhật đơn nghỉ phép thành công',
+              backgroundColor: AppColors.current.blackColor,
+            );
+          }
+          if (isEditMode &&
+              !_hasSetLeaveCode &&
+              state.leaveCodes.isNotEmpty &&
+              widget.leaveRequest!.leaveCodeId.isNotEmpty) {
+            _loadLeaveRequestData();
+            _hasSetLeaveCode = true;
+          }
         },
+        child: BlocBuilder<LeaveRequestBloc, LeaveRequestState>(
+          builder: (context, state) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(Dimens.d16.responsive()),
+              child: Container(
+                padding: EdgeInsets.all(Dimens.d16.responsive()),
+                decoration: BoxDecoration(
+                    color: AppColors.current.whiteColor,
+                    borderRadius:
+                        BorderRadius.circular(Dimens.d16.responsive())),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLeaveTypeSection(state),
+                    if (state.selectedLeaveType != null) ...[
+                      SizedBox(height: Dimens.d16.responsive()),
+                      _buildShiftSection(state),
+                      SizedBox(height: Dimens.d16.responsive()),
+                      _buildLeaveCodeSection(state),
+                    ],
+                    if (state.selectedLeaveCode != null) ...[
+                      SizedBox(height: Dimens.d16.responsive()),
+                      _buildDateSection(state),
+                    ],
+                    if (state.selectedDate != null ||
+                        (state.startDate != null && state.endDate != null)) ...[
+                      SizedBox(height: Dimens.d16.responsive()),
+                      _buildTotalDaysSection(state),
+                      SizedBox(height: Dimens.d16.responsive()),
+                      _buildReasonSection(state),
+                      SizedBox(height: Dimens.d24.responsive()),
+                      _buildSubmitButton(state),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -120,8 +209,7 @@ class _CreateLeaveRequestPageState
   }
 
   Widget _buildLeaveCodeSection(LeaveRequestState state) {
-    final leaveCodeNames =
-        state.leaveCodes.map((code) => code.name).toList();
+    final leaveCodeNames = state.leaveCodes.map((code) => code.name).toList();
 
     return _buildSection(
       title: 'Mã xin nghỉ',
@@ -132,7 +220,7 @@ class _CreateLeaveRequestPageState
               padding:
                   EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
               decoration: BoxDecoration(
-                color: AppColors.current.grayColor.withOpacity(0.1),
+                color: AppColors.current.grayColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
                 border: Border.all(
                   color: AppColors.current.borderDefaultColor,
@@ -214,13 +302,13 @@ class _CreateLeaveRequestPageState
     bool enabled = true,
   }) {
     return Container(
-      height: Dimens.d56.responsive(),
+      height: Dimens.d40.responsive(),
       padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
       decoration: BoxDecoration(
         color: enabled
             ? AppColors.current.whiteColor
-            : AppColors.current.grayColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+            : AppColors.current.grayColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
         border: Border.all(
           color: AppColors.current.borderDefaultColor,
         ),
@@ -234,7 +322,7 @@ class _CreateLeaveRequestPageState
               fontSize: Dimens.d14.responsive(),
               fontWeight: FontWeight.w400,
               color: date != null
-                  ? AppColors.current.primaryTextColor
+                  ? AppColors.current.blackColor
                   : AppColors.current.secondaryTextColor,
             ),
           ),
@@ -280,7 +368,7 @@ class _CreateLeaveRequestPageState
           textStyle: AppTextStyles.titleTextDefault(
             fontSize: Dimens.d14.responsive(),
             fontWeight: FontWeight.w400,
-            color: AppColors.current.primaryTextColor,
+            color: AppColors.current.blackColor,
           ),
           borderColor: AppColors.current.borderDefaultColor,
           contentPadding: EdgeInsets.all(Dimens.d12.responsive()),
@@ -293,7 +381,7 @@ class _CreateLeaveRequestPageState
     return UIButton(
       height: Dimens.d56.responsive(),
       width: double.infinity,
-      text: 'Gửi đơn đăng ký',
+      text: isEditMode ? 'Cập nhật đơn' : 'Gửi đơn đăng ký',
       textSize: Dimens.d16.responsive(),
       fontWeight: FontWeight.w700,
       radius: Dimens.d12.responsive(),
@@ -303,7 +391,15 @@ class _CreateLeaveRequestPageState
           : AppColors.current.secondaryTextColor,
       textColor: AppColors.current.whiteColor,
       onTap: state.isFormValid
-          ? () => bloc.add(const SubmitButtonPressed())
+          ? () {
+              if (isEditMode) {
+                bloc.add(UpdateLeaveRequestButtonPressed(
+                  leaveRequestId: widget.leaveRequest!.id,
+                ));
+              } else {
+                bloc.add(const SubmitButtonPressed());
+              }
+            }
           : null,
     );
   }
@@ -352,11 +448,11 @@ class _CreateLeaveRequestPageState
     required Function(String) onChanged,
   }) {
     return Container(
-      height: Dimens.d56.responsive(),
+      height: Dimens.d40.responsive(),
       padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
       decoration: BoxDecoration(
         color: AppColors.current.whiteColor,
-        borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+        borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
         border: Border.all(
           color: AppColors.current.borderDefaultColor,
         ),
@@ -401,11 +497,11 @@ class _CreateLeaveRequestPageState
 
   Widget _buildDisabledField(String text) {
     return Container(
-      height: Dimens.d56.responsive(),
+      height: Dimens.d40.responsive(),
       padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
       decoration: BoxDecoration(
-        color: AppColors.current.grayColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(Dimens.d8.responsive()),
+        color: AppColors.current.grayColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
         border: Border.all(
           color: AppColors.current.borderDefaultColor,
         ),

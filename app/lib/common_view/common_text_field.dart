@@ -97,13 +97,12 @@ class _CustomTextFormFieldState extends State<CommonTextField> {
     super.initState();
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_onFocusChange);
-    widget.controller?.addListener(() {
-      setState(() {});
-    });
+    widget.controller?.addListener(_onControllerChange);
   }
 
   @override
   void dispose() {
+    widget.controller?.removeListener(_onControllerChange);
     _focusNode.removeListener(_onFocusChange);
     if (widget.focusNode == null) {
       _focusNode.dispose();
@@ -112,7 +111,15 @@ class _CustomTextFormFieldState extends State<CommonTextField> {
   }
 
   void _onFocusChange() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _onControllerChange() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override

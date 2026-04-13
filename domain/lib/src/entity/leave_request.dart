@@ -9,8 +9,10 @@ class LeaveRequest with _$LeaveRequest {
   const factory LeaveRequest({
     @Default('') String id,
     @Default('') String userId,
+    @Default('') String dayType,
+    @Default('') String shift,
+    @Default('') String leaveCodeId,
     @Default('') String creatorName,
-    @Default('') String leaveType,
     @Default('') String startDate,
     @Default('') String endDate,
     @Default(0) int totalDays,

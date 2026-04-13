@@ -12,6 +12,7 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
     LeaveRequestResponse? leaveRequests,
     @Default(LoadDataStatus.init) LoadDataStatus getLeaveRequestResponseStatus,
     @Default(0) int selectedTabIndex,
+    @Default(0) int pendingCount,
     String? selectedLeaveType,
     String? selectedShift,
     String? selectedLeaveCode,
@@ -23,6 +24,8 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
     @Default([]) List<LeaveCode> leaveCodes,
     @Default(LoadDataStatus.init) LoadDataStatus getLeaveCodesStatus,
     @Default(LoadDataStatus.init) LoadDataStatus createLeaveRequestStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus deleteLeaveRequestStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus updateLeaveRequestStatus,
     AppException? loadDataException,
   }) = _LeaveRequestState;
 

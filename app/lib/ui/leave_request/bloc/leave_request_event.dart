@@ -8,28 +8,28 @@ abstract class LeaveRequestEvent extends BaseBlocEvent {
 }
 
 @freezed
-class LeaveRequestPageInitiated extends LeaveRequestEvent with _$LeaveRequestPageInitiated {
+class LeaveRequestPageInitiated extends LeaveRequestEvent
+    with _$LeaveRequestPageInitiated {
   const factory LeaveRequestPageInitiated() = _LeaveRequestPageInitiated;
 }
 
 @freezed
-class LeaveRequestTabChanged extends LeaveRequestEvent with _$LeaveRequestTabChanged {
+class LeaveRequestTabChanged extends LeaveRequestEvent
+    with _$LeaveRequestTabChanged {
   const factory LeaveRequestTabChanged({
     required int tabIndex,
   }) = _LeaveRequestTabChanged;
 }
+
 @freezed
-class GetLeaveCodes extends LeaveRequestEvent
-    with _$GetLeaveCodes{
-  const factory GetLeaveCodes() =
-  _GetLeaveCodes;
+class GetLeaveCodes extends LeaveRequestEvent with _$GetLeaveCodes {
+  const factory GetLeaveCodes() = _GetLeaveCodes;
 }
 
 @freezed
-class LeaveTypeChanged extends LeaveRequestEvent
-    with _$LeaveTypeChanged {
+class LeaveTypeChanged extends LeaveRequestEvent with _$LeaveTypeChanged {
   const factory LeaveTypeChanged({required String leaveType}) =
-  _LeaveTypeChanged;
+      _LeaveTypeChanged;
 }
 
 @freezed
@@ -38,10 +38,9 @@ class ShiftChanged extends LeaveRequestEvent with _$ShiftChanged {
 }
 
 @freezed
-class LeaveCodeChanged extends LeaveRequestEvent
-    with _$LeaveCodeChanged {
+class LeaveCodeChanged extends LeaveRequestEvent with _$LeaveCodeChanged {
   const factory LeaveCodeChanged({required String leaveCode}) =
-  _LeaveCodeChanged;
+      _LeaveCodeChanged;
 }
 
 @freezed
@@ -65,8 +64,54 @@ class ReasonChanged extends LeaveRequestEvent with _$ReasonChanged {
 }
 
 @freezed
-class SubmitButtonPressed extends LeaveRequestEvent
-    with _$SubmitButtonPressed {
+class SubmitButtonPressed extends LeaveRequestEvent with _$SubmitButtonPressed {
   const factory SubmitButtonPressed() = _SubmitButtonPressed;
 }
 
+@freezed
+class ApproveLeaveRequestButtonPressed extends LeaveRequestEvent
+    with _$ApproveLeaveRequestButtonPressed {
+  const factory ApproveLeaveRequestButtonPressed({
+    required String leaveRequestId,
+  }) = _ApproveLeaveRequestButtonPressed;
+}
+
+@freezed
+class RejectLeaveRequestButtonPressed extends LeaveRequestEvent
+    with _$RejectLeaveRequestButtonPressed {
+  const factory RejectLeaveRequestButtonPressed({
+    required String leaveRequestId,
+    required String rejectionReason,
+  }) = _RejectLeaveRequestButtonPressed;
+}
+
+@freezed
+class DeleteLeaveRequestButtonPressed extends LeaveRequestEvent
+    with _$DeleteLeaveRequestButtonPressed {
+  const factory DeleteLeaveRequestButtonPressed({
+    required String leaveRequestId,
+  }) = _DeleteLeaveRequestButtonPressed;
+}
+
+@freezed
+class UpdateLeaveRequestButtonPressed extends LeaveRequestEvent
+    with _$UpdateLeaveRequestButtonPressed {
+  const factory UpdateLeaveRequestButtonPressed({
+    required String leaveRequestId,
+  }) = _UpdateLeaveRequestButtonPressed;
+}
+
+@freezed
+class LoadLeaveRequestForEdit extends LeaveRequestEvent
+    with _$LoadLeaveRequestForEdit {
+  const factory LoadLeaveRequestForEdit({
+    required String leaveType,
+    required String reason,
+    String? shift,
+    String? leaveCodeId,
+    String? leaveCodeName,
+    DateTime? selectedDate,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) = _LoadLeaveRequestForEdit;
+}

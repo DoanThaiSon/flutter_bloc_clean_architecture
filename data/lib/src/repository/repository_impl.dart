@@ -187,6 +187,14 @@ class RepositoryImpl implements Repository {
   }
 
   @override
+  Future<LeaveRequestResponse> getAllLeaveRequests(
+      {required int page, required int limit, String? status}) async {
+    final response = await _appApiService.getAllLeaveRequests(
+        page: page, limit: limit, status: status);
+    return _leaveRequestResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
   Future<LeaveCodeResponse> getLeaveCodes() async {
     final response = await _appApiService.getLeaveCodes();
     return _leaveCodeResponseDataMapper.mapToEntity(response);
@@ -210,6 +218,49 @@ class RepositoryImpl implements Repository {
       reason: reason,
     );
     return _createLeaveRequestResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<void> approveLeaveRequest({
+    required String leaveRequestId,
+  }) async {
+    await _appApiService.approveLeaveRequest(leaveRequestId);
+  }
+
+  @override
+  Future<void> rejectLeaveRequest({
+    required String leaveRequestId,
+    required String rejectionReason,
+  }) async {
+    await _appApiService.rejectLeaveRequest(leaveRequestId, rejectionReason);
+  }
+
+  @override
+  Future<void> deleteLeaveRequest({
+    required String leaveRequestId,
+  }) async {
+    await _appApiService.deleteLeaveRequest(leaveRequestId);
+  }
+
+  @override
+  Future<void> updateLeaveRequest({
+    required String leaveRequestId,
+    required String dayType,
+    required String shift,
+    required String leaveCodeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+  }) async {
+    await _appApiService.updateLeaveRequest(
+      leaveRequestsId: leaveRequestId,
+      dayType: dayType,
+      shift: shift,
+      leaveCodeId: leaveCodeId,
+      startDate: startDate,
+      endDate: endDate,
+      reason: reason,
+    );
   }
 
   @override
