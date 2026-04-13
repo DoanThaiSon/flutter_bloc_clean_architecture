@@ -23,7 +23,6 @@ class LeaveRequestPage extends StatefulWidget {
 
 class _LeaveRequestPageState
     extends BasePageState<LeaveRequestPage, LeaveRequestBloc> {
-  int _selectedTab = 0;
   Completer<void>? _refreshCompleter;
 
   @override
@@ -42,12 +41,17 @@ class _LeaveRequestPageState
         onLeadingPressed: () => navigator.pop(useRootNavigator: true),
       ),
       body: BlocConsumer<LeaveRequestBloc, LeaveRequestState>(
+        listenWhen: (previous, current) {
+          return previous.deleteLeaveRequestStatus != current.deleteLeaveRequestStatus ||
+                 previous.getLeaveRequestResponseStatus != current.getLeaveRequestResponseStatus;
+        },
         listener: (context, state) {
           if (state.getLeaveRequestResponseStatus == LoadDataStatus.success ||
               state.getLeaveRequestResponseStatus == LoadDataStatus.fail) {
             _refreshCompleter?.complete();
             _refreshCompleter = null;
           }
+          
           if (state.deleteLeaveRequestStatus == LoadDataStatus.success) {
             showAppSnackBar(
               context,
@@ -64,56 +68,58 @@ class _LeaveRequestPageState
               _buildTabBar(state),
               Expanded(
                 child: RefreshIndicator(
-                  onRefresh: () async {
-                    // Create a new completer for this refresh
-                    _refreshCompleter = Completer<void>();
-
-                    // Trigger refresh for current tab
-                    bloc.add(LeaveRequestTabChanged(tabIndex: _selectedTab));
-
-                    // Wait for the completer to complete with timeout
-                    return _refreshCompleter!.future.timeout(
-                      const Duration(seconds: 10),
-                      onTimeout: () {
-                        _refreshCompleter = null;
-                      },
-                    );
-                  },
-                  color: AppColors.current.blue500Color,
-                  child: hasData
-                      ? ListView.builder(
-                          padding: EdgeInsets.all(Dimens.d16.responsive()),
-                          itemCount: state.leaveRequests?.data.length,
-                          itemBuilder: (context, index) {
-                            return _buildLeaveRequestItem(
-                                state.leaveRequests?.data[index]);
-                          },
-                        )
-                      : const EmptyDataPage()
-                ),
+                    onRefresh: () async {
+                      _refreshCompleter = Completer<void>();
+                      bloc.add(LeaveRequestTabChanged(
+                          tabIndex: state.selectedTabIndex));
+                      return _refreshCompleter!.future.timeout(
+                        const Duration(seconds: 10),
+                        onTimeout: () {
+                          _refreshCompleter = null;
+                        },
+                      );
+                    },
+                    color: AppColors.current.blue500Color,
+                    child: hasData
+                        ? ListView.builder(
+                            padding: EdgeInsets.all(Dimens.d16.responsive()),
+                            itemCount: state.leaveRequests?.data.length,
+                            itemBuilder: (context, index) {
+                              return _buildLeaveRequestItem(
+                                  state, state.leaveRequests?.data[index]);
+                            },
+                          )
+                        : const EmptyDataPage()),
               ),
             ],
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result =
-              await navigator.push(const AppRouteInfo.createLeaveRequest());
-          if (result == true) {
-            bloc.add(LeaveRequestTabChanged(tabIndex: _selectedTab));
-          }
+      floatingActionButton: BlocBuilder<LeaveRequestBloc, LeaveRequestState>(
+        builder: (context, state) {
+          return FloatingActionButton(
+            onPressed: () async {
+              final result =
+                  await navigator.push(const AppRouteInfo.createLeaveRequest());
+              if (result == true) {
+                bloc.add(
+                    LeaveRequestTabChanged(tabIndex: state.selectedTabIndex));
+              }
+            },
+            backgroundColor: AppColors.current.blue500Color,
+            child: Icon(
+              Icons.add,
+              color: AppColors.current.whiteColor,
+            ),
+          );
         },
-        backgroundColor: AppColors.current.blue500Color,
-        child: Icon(
-          Icons.add,
-          color: AppColors.current.whiteColor,
-        ),
       ),
     );
   }
 
   Widget _buildTabBar(LeaveRequestState state) {
+    final isUserRole = state.isUserRole;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
       child: Container(
@@ -126,12 +132,23 @@ class _LeaveRequestPageState
         ),
         child: Row(
           children: [
-            Expanded(child: _buildTabItem('Tất cả', 0)),
-            Expanded(child: _buildTabItem('Của tôi', 1)),
             Expanded(
-              child: _buildTabItem('Cần duyệt', 2,
-                  badgeCount:
-                      state.pendingCount > 0 ? state.pendingCount : null),
+              child: _buildTabItem(
+                state,
+                'Tất cả',
+                0,
+                enabled: !isUserRole,
+              ),
+            ),
+            Expanded(child: _buildTabItem(state, 'Của tôi', 1)),
+            Expanded(
+              child: _buildTabItem(
+                state,
+                'Cần duyệt',
+                2,
+                badgeCount: state.pendingCount > 0 ? state.pendingCount : null,
+                enabled: !isUserRole,
+              ),
             ),
           ],
         ),
@@ -139,73 +156,78 @@ class _LeaveRequestPageState
     );
   }
 
-  Widget _buildTabItem(String label, int index, {int? badgeCount}) {
-    final isSelected = _selectedTab == index;
+  Widget _buildTabItem(LeaveRequestState state, String label, int index,
+      {int? badgeCount, bool enabled = true}) {
+    final isSelected = state.selectedTabIndex == index;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTab = index;
-        });
-        bloc.add(LeaveRequestTabChanged(tabIndex: index));
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Dimens.d8.responsive(),
-          vertical: Dimens.d4.responsive(),
-        ),
-        decoration: BoxDecoration(
-          color:
-              isSelected ? AppColors.current.whiteColor : AppColors.neutral200,
-          borderRadius: BorderRadius.circular(Dimens.d20.responsive()),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: AppTextStyles.s14w500Primary()
-                      .copyWith(color: AppColors.current.blackColor),
-                  overflow: TextOverflow.ellipsis,
+      onTap: enabled
+          ? () {
+              bloc.add(LeaveRequestTabChanged(tabIndex: index));
+            }
+          : null,
+      child: Opacity(
+        opacity: enabled ? 1.0 : 0.5,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: Dimens.d8.responsive(),
+            vertical: Dimens.d4.responsive(),
+          ),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.current.whiteColor
+                : AppColors.neutral200,
+            borderRadius: BorderRadius.circular(Dimens.d20.responsive()),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    label,
+                    style: AppTextStyles.s14w500Primary()
+                        .copyWith(color: AppColors.current.blackColor),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              if (badgeCount != null) ...[
-                SizedBox(width: Dimens.d6.responsive()),
-                Container(
-                  constraints: BoxConstraints(
-                    minWidth: Dimens.d20.responsive(),
-                    minHeight: Dimens.d20.responsive(),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Dimens.d6.responsive(),
-                    vertical: Dimens.d2.responsive(),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.current.redColor,
-                    borderRadius:
-                        BorderRadius.circular(Dimens.d10.responsive()),
-                  ),
-                  child: Center(
-                    child: Text(
-                      badgeCount > 99 ? '99+' : '$badgeCount',
-                      style: AppTextStyles.s11w600Primary().copyWith(
-                        color: AppColors.current.whiteColor,
-                        height: 1.2,
+                if (badgeCount != null) ...[
+                  SizedBox(width: Dimens.d6.responsive()),
+                  Container(
+                    constraints: BoxConstraints(
+                      minWidth: Dimens.d20.responsive(),
+                      minHeight: Dimens.d20.responsive(),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimens.d6.responsive(),
+                      vertical: Dimens.d2.responsive(),
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.current.redColor,
+                      borderRadius:
+                          BorderRadius.circular(Dimens.d10.responsive()),
+                    ),
+                    child: Center(
+                      child: Text(
+                        badgeCount > 99 ? '99+' : '$badgeCount',
+                        style: AppTextStyles.s11w600Primary().copyWith(
+                          color: AppColors.current.whiteColor,
+                          height: 1.2,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLeaveRequestItem(LeaveRequest? request) {
+  Widget _buildLeaveRequestItem(
+      LeaveRequestState state, LeaveRequest? request) {
     return Container(
       margin: EdgeInsets.only(bottom: Dimens.d12.responsive()),
       padding: EdgeInsets.all(Dimens.d16.responsive()),
@@ -235,7 +257,8 @@ class _LeaveRequestPageState
                       height: Dimens.d40.responsive(),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.current.blue500Color.withValues(alpha: 0.1),
+                        color: AppColors.current.blue500Color
+                            .withValues(alpha: 0.1),
                       ),
                       child: Center(
                         child: Text(
@@ -349,20 +372,20 @@ class _LeaveRequestPageState
             ),
           ],
           SizedBox(height: Dimens.d12.responsive()),
-          _buildActionButtons(request),
+          _buildActionButtons(state, request),
         ],
       ),
     );
   }
 
-  Widget _buildActionButtons(LeaveRequest? request) {
+  Widget _buildActionButtons(LeaveRequestState state, LeaveRequest? request) {
     if (request == null) {
       return const SizedBox.shrink();
     }
 
     final isPending = request.status == 'pending';
-    final isMyRequest = _selectedTab == 1; // Tab "Của tôi"
-    final needsApproval = _selectedTab == 2; // Tab "Cần duyệt"
+    final isMyRequest = state.selectedTabIndex == 1; // Tab "Của tôi"
+    final needsApproval = state.selectedTabIndex == 2; // Tab "Cần duyệt"
 
     return Row(
       children: [
@@ -376,7 +399,8 @@ class _LeaveRequestPageState
                   ),
                 );
                 if (result == true) {
-                  bloc.add(LeaveRequestTabChanged(tabIndex: _selectedTab));
+                  bloc.add(
+                      LeaveRequestTabChanged(tabIndex: state.selectedTabIndex));
                 }
               },
               icon: Icon(
@@ -417,7 +441,7 @@ class _LeaveRequestPageState
                       ),
                       description: 'Bạn có chắc chắn muốn xóa đơn này?',
                       confirmText: 'Xóa',
-                      cancelText: 'Hủy',
+                      cancelText: S.current.cancel,
                       onConfirm: () {
                         Navigator.of(dialogContext).pop();
                         bloc.add(DeleteLeaveRequestButtonPressed(
@@ -542,7 +566,8 @@ class _LeaveRequestPageState
         statusText = 'ĐÃ DUYỆT';
         break;
       case 'pending':
-        backgroundColor = AppColors.current.orange500Color.withValues(alpha: 0.1);
+        backgroundColor =
+            AppColors.current.orange500Color.withValues(alpha: 0.1);
         textColor = AppColors.current.orange500Color;
         statusText = 'ĐANG CHỜ';
         break;
@@ -582,18 +607,17 @@ class _LeaveRequestPageState
         return RejectReasonDialog(
           title: 'Từ chối đơn nghỉ phép',
           hintText: 'Vui lòng nhập lý do từ chối đơn này...',
-          confirmText: 'Xác nhận',
-          cancelText: 'Hủy',
+          confirmText: S.current.confirm,
+          cancelText: S.current.cancel,
           onConfirm: (reason) {
-            Navigator.of(dialogContext).pop();
-            // Call reject API with reason
+            navigator.pop(useRootNavigator: true);
             bloc.add(RejectLeaveRequestButtonPressed(
               leaveRequestId: leaveRequestId,
               rejectionReason: reason,
             ));
           },
           onCancel: () {
-            Navigator.of(dialogContext).pop();
+            navigator.pop(useRootNavigator: true);
           },
         );
       },

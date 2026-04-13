@@ -27,6 +27,7 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
     @Default(LoadDataStatus.init) LoadDataStatus deleteLeaveRequestStatus,
     @Default(LoadDataStatus.init) LoadDataStatus updateLeaveRequestStatus,
     AppException? loadDataException,
+    User? currentUser,
   }) = _LeaveRequestState;
 
   double get totalDays {
@@ -62,7 +63,10 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
       return selectedDate != null;
     }
   }
+
+  bool get isUserRole => currentUser?.role == 'user';
 }
+
 
 
 

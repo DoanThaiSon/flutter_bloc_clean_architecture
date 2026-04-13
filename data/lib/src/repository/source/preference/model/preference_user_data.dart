@@ -9,6 +9,7 @@ class PreferenceUserData with _$PreferenceUserData {
     @JsonKey(name: 'id') required String id,
     @JsonKey(name: 'email') required String email,
     @JsonKey(name: 'name') @Default('') String name,
+    @JsonKey(name: 'role') @Default('user') String role,
   }) = _PreferenceUserData;
 
   const PreferenceUserData._();

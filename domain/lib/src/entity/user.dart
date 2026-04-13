@@ -16,6 +16,7 @@ class User with _$User {
     @Default(User.defaultAvatar) ImageUrl avatar,
     @Default(User.defaultPhotos) List<ImageUrl> photos,
     @Default(User.defaultGender) Gender gender,
+    @Default(User.defaultRole) String role,
   }) = _User;
 
   static const defaultId = 0;
@@ -26,4 +27,5 @@ class User with _$User {
   static const defaultAvatar = ImageUrl();
   static const defaultPhotos = <ImageUrl>[];
   static const defaultGender = Gender.defaultValue;
+  static const defaultRole = 'user';
 }

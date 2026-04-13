@@ -11,6 +11,7 @@ class ApiLoginUserDataMapper extends BaseDataMapper<ApiLoginUserData, User> {
       id: data?.id?.hashCode ?? User.defaultId,
       email: data?.email ?? User.defaultEmail,
       name: data?.username ?? User.defaultName,
+      role: data?.role ?? User.defaultRole,
     );
   }
 }

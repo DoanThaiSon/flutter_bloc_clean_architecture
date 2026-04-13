@@ -15,6 +15,7 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
     this._rejectLeaveRequestUseCase,
     this._deleteLeaveRequestUseCase,
     this._updateLeaveRequestUseCase,
+    this._repository,
   ) : super(const LeaveRequestState()) {
     on<LeaveRequestPageInitiated>(
       _onLeaveRequestPageInitiated,
@@ -91,6 +92,7 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
   final RejectLeaveRequestUseCase _rejectLeaveRequestUseCase;
   final DeleteLeaveRequestUseCase _deleteLeaveRequestUseCase;
   final UpdateLeaveRequestUseCase _updateLeaveRequestUseCase;
+  final Repository _repository;
 
   Future<void> _onLeaveRequestPageInitiated(
     LeaveRequestPageInitiated event,
@@ -98,26 +100,24 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
   ) async {
     await runBlocCatching(
         handleLoading: false,
-        doOnSubscribe: () async => emit(state.copyWith(
-              getLeaveRequestResponseStatus: LoadDataStatus.init,
-            )),
         action: () async {
+          final user = _repository.getUserPreference();
+
+          final defaultTab = user.role == 'user' ? 1 : 0;
+
           emit(state.copyWith(
-            getLeaveRequestResponseStatus: LoadDataStatus.loading,
+            currentUser: user,
+            selectedTabIndex: defaultTab,
           ));
 
-          // Load pending count first
-          final pendingOutput = await _getAllLeaveRequestsUseCase.execute(
-            const GetAllLeaveRequestsInput(
-                page: 1, limit: 100, status: 'pending'),
-          );
-          final pendingCount = pendingOutput.leaveRequestResponse.data.length;
+          // Update pending count for admin/manager
+          if (user.role != 'user') {
+            await _updatePendingCount(emit);
+          }
 
-          // Load data based on selected tab (default is tab 0 - "Tất cả")
-          await _loadLeaveRequestsByTab(state.selectedTabIndex, emit);
+          await _loadLeaveRequestsByTab(defaultTab, emit);
 
           emit(state.copyWith(
-            pendingCount: pendingCount,
             getLeaveRequestResponseStatus: LoadDataStatus.success,
           ));
         },
@@ -128,11 +128,6 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
                 loadDataException: e,
                 getLeaveRequestResponseStatus: LoadDataStatus.fail),
           );
-        },
-        doOnEventCompleted: () async {
-          emit(state.copyWith(
-            getLeaveRequestResponseStatus: LoadDataStatus.init,
-          ));
         });
   }
 
@@ -150,6 +145,11 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             selectedTabIndex: event.tabIndex,
             getLeaveRequestResponseStatus: LoadDataStatus.loading,
           ));
+
+          // Update pending count for admin/manager
+          if (state.currentUser?.role != 'user') {
+            await _updatePendingCount(emit);
+          }
 
           await _loadLeaveRequestsByTab(event.tabIndex, emit);
 
@@ -179,19 +179,16 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
     LeaveRequestResponse response;
 
     if (tabIndex == 0) {
-      // Tab "Tất cả" - call API /leave-requests/all
       final output = await _getAllLeaveRequestsUseCase.execute(
         const GetAllLeaveRequestsInput(page: 1, limit: 100),
       );
       response = output.leaveRequestResponse;
     } else if (tabIndex == 2) {
-      // Tab "Cần duyệt" - call API /leave-requests/all with status=pending
       final output = await _getAllLeaveRequestsUseCase.execute(
         const GetAllLeaveRequestsInput(page: 1, limit: 100, status: 'pending'),
       );
       response = output.leaveRequestResponse;
     } else {
-      // Tab "Của tôi" (1) - call API /leave-requests/my-requests
       final output = await _getLeaveRequestsUseCase.execute(
         const GetLeaveRequestsInput(page: 1, limit: 100),
       );
@@ -249,23 +246,18 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
       shift = 'Cả ngày';
     }
 
-    // Determine which date fields to keep based on new leave type
     if (event.leaveType == 'Nghỉ nhiều ngày') {
-      // Switching to multi-day: keep startDate/endDate, clear selectedDate
       emit(state.copyWith(
         selectedLeaveType: event.leaveType,
         selectedShift: shift,
         selectedDate: null,
-        // Keep startDate, endDate, reason, selectedLeaveCode
       ));
     } else {
-      // Switching to single day or half day: keep selectedDate, clear startDate/endDate
       emit(state.copyWith(
         selectedLeaveType: event.leaveType,
         selectedShift: shift,
         startDate: null,
         endDate: null,
-        // Keep selectedDate, reason, selectedLeaveCode
       ));
     }
   }
@@ -286,7 +278,6 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
       orElse: () => const LeaveCode(),
     );
 
-    // Only update leave code, don't reset other fields
     emit(state.copyWith(
       selectedLeaveCode: event.leaveCode,
       selectedLeaveCodeId: leaveCode.id.isNotEmpty ? leaveCode.id : null,
@@ -349,7 +340,6 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             dayType = 'multiple_days';
           }
 
-          // Map shift
           String shift = 'full_day';
           if (state.selectedShift == 'Ca sáng') {
             shift = 'morning';
@@ -357,7 +347,6 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             shift = 'afternoon';
           }
 
-          // Format dates
           String startDate;
           String endDate;
 
@@ -408,6 +397,9 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           ApproveLeaveRequestInput(leaveRequestId: event.leaveRequestId),
         );
 
+        // Update pending count
+        await _updatePendingCount(emit);
+
         await _onLeaveRequestTabChanged(
           LeaveRequestTabChanged(tabIndex: state.selectedTabIndex),
           emit,
@@ -430,6 +422,9 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             rejectionReason: event.rejectionReason,
           ),
         );
+
+        // Update pending count
+        await _updatePendingCount(emit);
 
         // Reload data for current tab
         await _onLeaveRequestTabChanged(
@@ -464,6 +459,10 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           );
           emit(
               state.copyWith(deleteLeaveRequestStatus: LoadDataStatus.success));
+          await Future.delayed(Duration.zero);
+          emit(state.copyWith(deleteLeaveRequestStatus: LoadDataStatus.init));
+
+          await _updatePendingCount(emit);
           await _onLeaveRequestTabChanged(
             LeaveRequestTabChanged(tabIndex: state.selectedTabIndex),
             emit,
@@ -558,6 +557,19 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
 
   String _formatDateForApi(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _updatePendingCount(Emitter<LeaveRequestState> emit) async {
+    try {
+      final pendingOutput = await _getAllLeaveRequestsUseCase.execute(
+        const GetAllLeaveRequestsInput(page: 1, limit: 100, status: 'pending'),
+      );
+      final pendingCount = pendingOutput.leaveRequestResponse.data.length;
+      emit(state.copyWith(pendingCount: pendingCount));
+    } catch (e) {
+      // Nếu có lỗi khi lấy pending count, không làm gì (giữ nguyên giá trị cũ)
+      logD('Error updating pending count: $e');
+    }
   }
 
   void _onLoadLeaveRequestForEdit(

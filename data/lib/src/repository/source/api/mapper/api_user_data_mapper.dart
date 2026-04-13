@@ -17,17 +17,17 @@ class ApiUserDataMapper extends BaseDataMapper<ApiUserData, User> {
   @override
   User mapToEntity(ApiUserData? data) {
     return User(
-      id: data?.id ?? User.defaultId,
-      email: data?.email ?? User.defaultEmail,
-      money: BigDecimal.tryParse(data?.money) ?? User.defaultMoney,
-      birthday: DateTimeUtils.tryParse(
-            date: data?.birthday,
-            format: DateTimeFormatConstants.appServerResponse,
-          ) ??
-          User.defaultBirthday,
-      avatar: _apiImageUrlDataMapper.mapToEntity(data?.avatar),
-      photos: _apiImageUrlDataMapper.mapToListEntity(data?.photos),
-      gender: _genderDataMapper.mapToEntity(data?.gender),
-    );
+        id: data?.id ?? User.defaultId,
+        email: data?.email ?? User.defaultEmail,
+        money: BigDecimal.tryParse(data?.money) ?? User.defaultMoney,
+        birthday: DateTimeUtils.tryParse(
+              date: data?.birthday,
+              format: DateTimeFormatConstants.appServerResponse,
+            ) ??
+            User.defaultBirthday,
+        avatar: _apiImageUrlDataMapper.mapToEntity(data?.avatar),
+        photos: _apiImageUrlDataMapper.mapToListEntity(data?.photos),
+        gender: _genderDataMapper.mapToEntity(data?.gender),
+        role: data?.role ?? '');
   }
 }

@@ -12,6 +12,7 @@ class PreferenceUserDataMapper extends BaseDataMapper<PreferenceUserData, User>
       id: data?.id.hashCode ?? User.defaultId,
       email: data?.email ?? User.defaultEmail,
       name: data?.name ?? User.defaultName,
+      role: data?.role ?? User.defaultRole,
     );
   }
 
@@ -21,6 +22,7 @@ class PreferenceUserDataMapper extends BaseDataMapper<PreferenceUserData, User>
       id: entity.id.toString(),
       email: entity.email,
       name: entity.name,
+      role: entity.role,
     );
   }
 }

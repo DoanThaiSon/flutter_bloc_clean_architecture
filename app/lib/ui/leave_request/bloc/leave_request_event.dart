@@ -8,12 +8,6 @@ abstract class LeaveRequestEvent extends BaseBlocEvent {
 }
 
 @freezed
-class LeaveRequestPageInitiated extends LeaveRequestEvent
-    with _$LeaveRequestPageInitiated {
-  const factory LeaveRequestPageInitiated() = _LeaveRequestPageInitiated;
-}
-
-@freezed
 class LeaveRequestTabChanged extends LeaveRequestEvent
     with _$LeaveRequestTabChanged {
   const factory LeaveRequestTabChanged({
@@ -114,4 +108,10 @@ class LoadLeaveRequestForEdit extends LeaveRequestEvent
     DateTime? startDate,
     DateTime? endDate,
   }) = _LoadLeaveRequestForEdit;
+}
+
+@freezed
+class LeaveRequestPageInitiated extends LeaveRequestEvent
+    with _$LeaveRequestPageInitiated {
+  const factory LeaveRequestPageInitiated() = _LeaveRequestPageInitiated;
 }

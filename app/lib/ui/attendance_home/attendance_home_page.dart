@@ -47,7 +47,7 @@ class _AttendanceHomePageState
                   current.attendance?.checkInTime ||
               previous.attendance?.checkOutTime !=
                   current.attendance?.checkOutTime ||
-              previous.attendance?.timeline != previous.attendance?.timeline,
+              previous.attendance?.timeline != current.attendance?.timeline,
           builder: (context, state) {
             return SafeArea(
               child: RefreshIndicator(
@@ -56,6 +56,7 @@ class _AttendanceHomePageState
                   bloc.add(const AttendanceHomePageInitiated());
                 },
                 child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Padding(
                     padding: EdgeInsets.all(Dimens.d16.responsive()),
                     child: Column(

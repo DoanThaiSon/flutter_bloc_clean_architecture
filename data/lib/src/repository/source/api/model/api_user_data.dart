@@ -17,6 +17,7 @@ class ApiUserData with _$ApiUserData {
     @JsonKey(name: 'avatar') ApiImageUrlData? avatar,
     @JsonKey(name: 'photos') List<ApiImageUrlData>? photos,
     @JsonKey(name: 'sex') int? gender,
+    @JsonKey(name: 'role') String? role,
   }) = _ApiUserData;
 
   factory ApiUserData.fromJson(Map<String, dynamic> json) => _$ApiUserDataFromJson(json);
