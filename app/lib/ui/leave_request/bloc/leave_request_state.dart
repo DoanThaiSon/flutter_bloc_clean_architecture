@@ -2,7 +2,6 @@ import 'package:domain/domain.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/shared.dart';
 import '../../../app.dart';
-
 part 'leave_request_state.freezed.dart';
 
 @freezed
@@ -11,10 +10,14 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
   const factory LeaveRequestState({
     LeaveRequestResponse? leaveRequests,
     @Default(LoadDataStatus.init) LoadDataStatus getLeaveRequestResponseStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus loadMoreStatus,
     @Default(0) int selectedTabIndex,
     @Default(0) int pendingCount,
-    String? selectedLeaveType,
-    String? selectedShift,
+    @Default(1) int currentPage,
+    @Default(false) bool hasMoreData,
+    @Default(false) bool isLoadingMore,
+    LeaveType? selectedLeaveType,
+    Shift? selectedShift,
     String? selectedLeaveCode,
     String? selectedLeaveCodeId,
     DateTime? selectedDate,
@@ -26,6 +29,10 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
     @Default(LoadDataStatus.init) LoadDataStatus createLeaveRequestStatus,
     @Default(LoadDataStatus.init) LoadDataStatus deleteLeaveRequestStatus,
     @Default(LoadDataStatus.init) LoadDataStatus updateLeaveRequestStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus approveLeaveRequestStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus rejectLeaveRequestStatus,
+    String? updateLeaveRequestErrorMessage,
+    String? createLeaveRequestErrorMessage,
     AppException? loadDataException,
     User? currentUser,
   }) = _LeaveRequestState;
@@ -35,11 +42,11 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
       return 0;
     }
 
-    if (selectedLeaveType == 'Nghỉ nửa ngày') {
+    if (selectedLeaveType == LeaveType.halfDay) {
       return 0.5;
-    } else if (selectedLeaveType == 'Nghỉ 1 ngày') {
+    } else if (selectedLeaveType == LeaveType.oneDay) {
       return 1.0;
-    } else if (selectedLeaveType == 'Nghỉ nhiều ngày') {
+    } else if (selectedLeaveType == LeaveType.multipleDays) {
       if (startDate != null && endDate != null) {
         final difference = endDate!.difference(startDate!).inDays + 1;
         return difference.toDouble();
@@ -57,7 +64,7 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
       return false;
     }
 
-    if (selectedLeaveType == 'Nghỉ nhiều ngày') {
+    if (selectedLeaveType == LeaveType.multipleDays) {
       return startDate != null && endDate != null;
     } else {
       return selectedDate != null;
@@ -65,8 +72,6 @@ class LeaveRequestState extends BaseBlocState with _$LeaveRequestState {
   }
 
   bool get isUserRole => currentUser?.role == 'user';
+
+  bool get canLoadMore => hasMoreData && !isLoadingMore;
 }
-
-
-
-

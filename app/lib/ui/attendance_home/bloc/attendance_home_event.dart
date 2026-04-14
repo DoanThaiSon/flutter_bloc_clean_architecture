@@ -19,15 +19,20 @@ class TimeUpdated extends AttendanceHomeEvent with _$TimeUpdated {
 
 @freezed
 class CheckoutButtonPressed extends AttendanceHomeEvent with _$CheckoutButtonPressed {
-  const factory CheckoutButtonPressed({
-    required double latitude,
-    required double longitude,
-  }) = _CheckoutButtonPressed;
+  const factory CheckoutButtonPressed() = _CheckoutButtonPressed;
 }
+
 @freezed
 class CheckInButtonPressed extends AttendanceHomeEvent with _$CheckInButtonPressed{
-  const factory CheckInButtonPressed({
-    required double latitude,
-    required double longitude,
-  }) = _CheckInButtonPressed;
+  const factory CheckInButtonPressed() = _CheckInButtonPressed;
+}
+
+@freezed
+class CheckLocationPermission extends AttendanceHomeEvent with _$CheckLocationPermission {
+  const factory CheckLocationPermission() = _CheckLocationPermission;
+}
+
+@freezed
+class OpenLocationSettings extends AttendanceHomeEvent with _$OpenLocationSettings {
+  const factory OpenLocationSettings() = _OpenLocationSettings;
 }

@@ -5,6 +5,7 @@ import 'package:shared/shared.dart';
 import '../../app.dart';
 import '../../common_view/popup/common_show_snack_bar.dart';
 import '../../common_view/ui_button.dart';
+import '../../services/location_service.dart';
 import 'bloc/attendance_home.dart';
 
 @RoutePage()
@@ -18,11 +19,33 @@ class AttendanceHomePage extends StatefulWidget {
 }
 
 class _AttendanceHomePageState
-    extends BasePageState<AttendanceHomePage, AttendanceHomeBloc> {
+    extends BasePageState<AttendanceHomePage, AttendanceHomeBloc>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     bloc.add(const AttendanceHomePageInitiated());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      bloc.add(const CheckLocationPermission());
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    bloc.add(const CheckLocationPermission());
   }
 
   @override
@@ -43,6 +66,10 @@ class _AttendanceHomePageState
           buildWhen: (previous, current) =>
               previous.currentTime != current.currentTime ||
               previous.user != current.user ||
+              previous.locationPermissionStatus !=
+                  current.locationPermissionStatus ||
+              previous.checkInStatus != current.checkInStatus ||
+              previous.checkOutStatus != current.checkOutStatus ||
               previous.attendance?.checkInTime !=
                   current.attendance?.checkInTime ||
               previous.attendance?.checkOutTime !=
@@ -52,6 +79,7 @@ class _AttendanceHomePageState
             return SafeArea(
               child: RefreshIndicator(
                 color: AppColors.current.blackColor,
+                backgroundColor: AppColors.current.whiteColor,
                 onRefresh: () async {
                   bloc.add(const AttendanceHomePageInitiated());
                 },
@@ -204,6 +232,13 @@ class _AttendanceHomePageState
   }
 
   Widget _buildCheckInOutButtons(AttendanceHomeState state) {
+    final isLocationDenied =
+        state.locationPermissionStatus == LocationPermissionStatus.denied ||
+            state.locationPermissionStatus ==
+                LocationPermissionStatus.deniedForever ||
+            state.locationPermissionStatus ==
+                LocationPermissionStatus.serviceDisabled;
+
     return Column(
       children: [
         Row(
@@ -244,20 +279,26 @@ class _AttendanceHomePageState
         ),
         UIButton(
           radius: Dimens.d16.responsive(),
-          color: AppColors.current.blackColor,
+          color: isLocationDenied
+              ? AppColors.current.secondaryTextColor
+              : AppColors.current.blackColor,
           text: 'Chấm công',
-          onTap: () {
-            if (state.attendance?.checkInTime == null) {
-              bloc.add(const CheckInButtonPressed(
-                  latitude: 10.762622, longitude: 106.660172));
-            } else {
-              bloc.add(const CheckoutButtonPressed(
-                latitude: 10.762622,
-                longitude: 106.660172,
-              ));
-            }
-          },
-        )
+          isLoading: state.checkInStatus == LoadDataStatus.loading ||
+              state.checkOutStatus == LoadDataStatus.loading,
+          onTap: isLocationDenied
+              ? null
+              : () {
+                  if (state.attendance?.checkInTime == null) {
+                    bloc.add(const CheckInButtonPressed());
+                  } else {
+                    bloc.add(const CheckoutButtonPressed());
+                  }
+                },
+        ),
+        if (isLocationDenied) ...[
+          SizedBox(height: Dimens.d16.responsive()),
+          _buildLocationPermissionWarning(state),
+        ],
       ],
     );
   }
@@ -311,6 +352,55 @@ class _AttendanceHomePageState
               fontSize: Dimens.d18.responsive(),
               fontWeight: FontWeight.w700,
               color: AppColors.current.blackColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationPermissionWarning(AttendanceHomeState state) {
+    String message =
+        'Quyền truy cập vị trí bị từ chối. Ứng dụng cần quyền truy cập vị trí để hoạt động. Vui lòng cấp quyền trong cài đặt.';
+
+    if (state.locationPermissionStatus ==
+        LocationPermissionStatus.serviceDisabled) {
+      message =
+          'Dịch vụ định vị đang tắt. Vui lòng bật GPS trong cài đặt thiết bị.';
+    }
+
+    return Container(
+      padding: EdgeInsets.all(Dimens.d16.responsive()),
+      decoration: BoxDecoration(
+        color: AppColors.current.redColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(Dimens.d12.responsive()),
+        border: Border.all(
+          color: AppColors.current.blackColor.withValues(alpha: 0.5),
+          width: Dimens.d1.responsive(),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message,
+            style: AppTextStyles.titleTextDefault(
+                fontSize: Dimens.d13.responsive(),
+                color: AppColors.current.blackColor,
+                fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: Dimens.d12.responsive()),
+          SizedBox(
+            width: double.infinity,
+            child: UIButton(
+              radius: Dimens.d12.responsive(),
+              color: AppColors.current.whiteColor,
+              text: 'Cài đặt',
+              textColor: AppColors.current.blackColor,
+              height: Dimens.d40.responsive(),
+              onTap: () {
+                bloc.add(const OpenLocationSettings());
+              },
             ),
           ),
         ],

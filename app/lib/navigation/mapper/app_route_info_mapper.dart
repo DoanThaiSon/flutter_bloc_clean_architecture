@@ -9,15 +9,18 @@ class AppRouteInfoMapper extends BaseRouteInfoMapper {
   @override
   PageRouteInfo map(AppRouteInfo appRouteInfo) {
     return appRouteInfo.when(
-        main: () => const MainRoute(),
-        language: () => const LanguageRoute(),
-        welcome: () => const WelcomePageRoute(),
-        loginAttendance: () => const AttendanceLoginRoute(),
-        homeAttendance: () => const AttendanceHomeRoute(),
-        historyAttendance: () => const AttendanceHistoryRoute(),
-        profileAttendance: () => const AttendanceProfileRoute(),
-        leaveRequest: () => const LeaveRequestRoute(),
-        createLeaveRequest: (leaveRequest) => CreateLeaveRequestRoute(leaveRequest: leaveRequest)
+      main: () => const MainRoute(),
+      language: () => const LanguageRoute(),
+      welcome: () => const WelcomePageRoute(),
+      loginAttendance: () => const AttendanceLoginRoute(),
+      homeAttendance: () => const AttendanceHomeRoute(),
+      historyAttendance: () => const AttendanceHistoryRoute(),
+      profileAttendance: () => const AttendanceProfileRoute(),
+      leaveRequest: () => const LeaveRequestRoute(),
+      createLeaveRequest: (leaveRequest) =>
+          CreateLeaveRequestRoute(leaveRequest: leaveRequest),
+      webView: (String url, String title) =>
+          WebViewRoute(url: url, title: title),
     );
   }
 }

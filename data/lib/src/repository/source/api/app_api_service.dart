@@ -30,11 +30,11 @@ class AppApiService {
     );
   }
 
-  Future<void> logout() async {
+  Future<void> logout({required String refreshToken}) async {
     await _authAppServerApiClient.request(
-      method: RestMethod.post,
-      path: '/v1/auth/logout',
-    );
+        method: RestMethod.post,
+        path: '/auth/logout',
+        body: {'refreshToken': refreshToken});
   }
 
   Future<DataResponse<ApiAuthResponseData>?> register({
@@ -101,6 +101,23 @@ class AppApiService {
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
       decoder: (json) =>
           ApiAttendanceDataResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiAttendanceHistoryDataResponse?> getAttendanceHistory({
+    required String startDate,
+    required String endDate,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/attendances/my-attendances',
+      queryParameters: {
+        'startDate': startDate,
+        'endDate': endDate,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiAttendanceHistoryDataResponse.fromJson(json as Map<String, dynamic>),
     );
   }
 
@@ -214,7 +231,8 @@ class AppApiService {
     );
   }
 
-  Future<void> rejectLeaveRequest(String leaveRequestsId, String rejectionReason) async {
+  Future<void> rejectLeaveRequest(
+      String leaveRequestsId, String rejectionReason) async {
     await _authAppServerApiClient.request(
       method: RestMethod.put,
       path: '/leave-requests/${leaveRequestsId}/reject',

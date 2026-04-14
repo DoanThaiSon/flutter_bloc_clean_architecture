@@ -61,5 +61,4 @@ export 'shared_view/app_text_field.dart';
 export 'shared_view/button.dart';
 export 'shared_view/empty_data_widget.dart';
 export 'ui/main/main_page.dart';
-export 'ui/my_page/my_page_page.dart';
 export 'utils/app_utils.dart';

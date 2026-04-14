@@ -12,3 +12,20 @@ class AttendanceHistoryPageInitiated extends AttendanceHistoryEvent
     with _$AttendanceHistoryPageInitiated {
   const factory AttendanceHistoryPageInitiated() = _AttendanceHistoryPageInitiated;
 }
+
+@freezed
+class AttendanceHistoryMonthChanged extends AttendanceHistoryEvent
+    with _$AttendanceHistoryMonthChanged {
+  const factory AttendanceHistoryMonthChanged({
+    required int month,
+    required int year,
+  }) = _AttendanceHistoryMonthChanged;
+}
+
+@freezed
+class AttendanceHistoryDaySelected extends AttendanceHistoryEvent
+    with _$AttendanceHistoryDaySelected {
+  const factory AttendanceHistoryDaySelected({
+    required DateTime date,
+  }) = _AttendanceHistoryDaySelected;
+}

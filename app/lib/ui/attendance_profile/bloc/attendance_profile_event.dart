@@ -12,3 +12,7 @@ class AttendanceProfilePageInitiated extends AttendanceProfileEvent
     with _$AttendanceProfilePageInitiated {
   const factory AttendanceProfilePageInitiated() = _AttendanceProfilePageInitiated;
 }
+@freezed
+class LogoutButtonPressed extends AttendanceProfileEvent with _$LogoutButtonPressed {
+  const factory LogoutButtonPressed() = _LogoutButtonPressed;
+}

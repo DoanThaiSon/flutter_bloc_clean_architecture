@@ -15,6 +15,7 @@ class RepositoryImpl implements Repository {
     this._genderDataMapper,
     this._loginUserDataMapper,
     this._attendanceResponseDataMapper,
+    this._attendanceHistoryResponseDataMapper,
     this._checkoutResponseDataMapper,
     this._leaveRequestResponseDataMapper,
     this._leaveCodeResponseDataMapper,
@@ -30,6 +31,7 @@ class RepositoryImpl implements Repository {
   final GenderDataMapper _genderDataMapper;
   final ApiLoginUserDataMapper _loginUserDataMapper;
   final ApiAttendanceResponseDataMapper _attendanceResponseDataMapper;
+  final ApiAttendanceHistoryResponseDataMapper _attendanceHistoryResponseDataMapper;
   final ApiCheckoutResponseDataMapper _checkoutResponseDataMapper;
   final ApiLeaveRequestResponseDataMapper _leaveRequestResponseDataMapper;
   final ApiLeaveCodeResponseDataMapper _leaveCodeResponseDataMapper;
@@ -88,8 +90,10 @@ class RepositoryImpl implements Repository {
   }
 
   @override
-  Future<void> logout() async {
-    await _appApiService.logout();
+  Future<void> logout({
+    required String refreshToken,
+  }) async {
+    await _appApiService.logout(refreshToken: refreshToken);
     await _appPreferences.clearCurrentUserData();
   }
 
@@ -148,6 +152,18 @@ class RepositoryImpl implements Repository {
   Future<AttendanceResponse> getTodayAttendance() async {
     final response = await _appApiService.getTodayAttendance();
     return _attendanceResponseDataMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<AttendanceHistoryResponse> getAttendanceHistory({
+    required String startDate,
+    required String endDate,
+  }) async {
+    final response = await _appApiService.getAttendanceHistory(
+      startDate: startDate,
+      endDate: endDate,
+    );
+    return _attendanceHistoryResponseDataMapper.mapToEntity(response);
   }
 
   @override

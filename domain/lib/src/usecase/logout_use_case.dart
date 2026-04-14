@@ -16,7 +16,7 @@ class LogoutUseCase extends BaseFutureUseCase<LogoutInput, LogoutOutput> {
   @override
   Future<LogoutOutput> buildUseCase(LogoutInput input) async {
     if (_repository.isLoggedIn) {
-      // await _repository.logout();
+      await _repository.logout(refreshToken: input.refreshToken);
       await _navigator.replace(const AppRouteInfo.loginAttendance());
     }
 
@@ -26,7 +26,7 @@ class LogoutUseCase extends BaseFutureUseCase<LogoutInput, LogoutOutput> {
 
 @freezed
 class LogoutInput extends BaseInput with _$LogoutInput {
-  const factory LogoutInput() = _LogoutUseCase;
+  const factory LogoutInput({required String refreshToken}) = _LogoutUseCase;
 }
 
 @freezed

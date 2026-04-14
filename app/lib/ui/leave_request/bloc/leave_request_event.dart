@@ -1,6 +1,6 @@
+import 'package:domain/domain.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../app.dart';
-
 part 'leave_request_event.freezed.dart';
 
 abstract class LeaveRequestEvent extends BaseBlocEvent {
@@ -22,13 +22,13 @@ class GetLeaveCodes extends LeaveRequestEvent with _$GetLeaveCodes {
 
 @freezed
 class LeaveTypeChanged extends LeaveRequestEvent with _$LeaveTypeChanged {
-  const factory LeaveTypeChanged({required String leaveType}) =
+  const factory LeaveTypeChanged({required LeaveType leaveType}) =
       _LeaveTypeChanged;
 }
 
 @freezed
 class ShiftChanged extends LeaveRequestEvent with _$ShiftChanged {
-  const factory ShiftChanged({required String shift}) = _ShiftChanged;
+  const factory ShiftChanged({required Shift shift}) = _ShiftChanged;
 }
 
 @freezed
@@ -99,9 +99,9 @@ class UpdateLeaveRequestButtonPressed extends LeaveRequestEvent
 class LoadLeaveRequestForEdit extends LeaveRequestEvent
     with _$LoadLeaveRequestForEdit {
   const factory LoadLeaveRequestForEdit({
-    required String leaveType,
+    required LeaveType leaveType,
     required String reason,
-    String? shift,
+    Shift? shift,
     String? leaveCodeId,
     String? leaveCodeName,
     DateTime? selectedDate,
@@ -114,4 +114,20 @@ class LoadLeaveRequestForEdit extends LeaveRequestEvent
 class LeaveRequestPageInitiated extends LeaveRequestEvent
     with _$LeaveRequestPageInitiated {
   const factory LeaveRequestPageInitiated() = _LeaveRequestPageInitiated;
+}
+
+@freezed
+class LoadMoreLeaveRequests extends LeaveRequestEvent
+    with _$LoadMoreLeaveRequests {
+  const factory LoadMoreLeaveRequests() = _LoadMoreLeaveRequests;
+}
+@freezed
+class ClearUpdateLeaveRequestErrorMessage extends LeaveRequestEvent
+    with _$ClearUpdateLeaveRequestErrorMessage {
+  const factory ClearUpdateLeaveRequestErrorMessage() = _ClearUpdateLeaveRequestErrorMessage;
+}
+@freezed
+class ClearCreateLeaveRequestErrorMessage extends LeaveRequestEvent
+    with _$ClearCreateLeaveRequestErrorMessage {
+  const factory ClearCreateLeaveRequestErrorMessage() = _ClearCreateLeaveRequestErrorMessage;
 }

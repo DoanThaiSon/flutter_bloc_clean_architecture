@@ -15,6 +15,7 @@ class CustomConfirmDialog extends StatelessWidget {
     this.cancelText,
     this.confirmText,
     this.textStyle,
+    this.colorConfirmButton
   });
 
   final Widget? icon;
@@ -25,6 +26,7 @@ class CustomConfirmDialog extends StatelessWidget {
   final void Function()? onCancel;
   final void Function()? onConfirm;
   final TextStyle? textStyle;
+  final Color? colorConfirmButton;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +90,7 @@ class CustomConfirmDialog extends StatelessWidget {
           child: UIButton(
             height: Dimens.d44.responsive(),
             radius: Dimens.d8.responsive(),
-            color: AppColors.current.completeTextColor,
+            color: colorConfirmButton??AppColors.current.completeTextColor,
             enableShadow: false,
             onTap: onConfirm,
             text: confirmText ?? S.current.confirm,

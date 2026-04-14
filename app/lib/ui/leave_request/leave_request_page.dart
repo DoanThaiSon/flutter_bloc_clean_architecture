@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +8,7 @@ import '../../common_view/common_confirm_dialog.dart';
 import '../../common_view/popup/common_show_snack_bar.dart';
 import '../../common_view/reject_reason_dialog.dart';
 import 'bloc/leave_request.dart';
+import 'widgets/leave_request_shimmer.dart';
 
 @RoutePage()
 class LeaveRequestPage extends StatefulWidget {
@@ -23,12 +22,35 @@ class LeaveRequestPage extends StatefulWidget {
 
 class _LeaveRequestPageState
     extends BasePageState<LeaveRequestPage, LeaveRequestBloc> {
-  Completer<void>? _refreshCompleter;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     bloc.add(const LeaveRequestPageInitiated());
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom && bloc.state.canLoadMore) {
+      bloc.add(const LoadMoreLeaveRequests());
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) {
+      return false;
+    }
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
@@ -42,16 +64,14 @@ class _LeaveRequestPageState
       ),
       body: BlocConsumer<LeaveRequestBloc, LeaveRequestState>(
         listenWhen: (previous, current) {
-          return previous.deleteLeaveRequestStatus != current.deleteLeaveRequestStatus ||
-                 previous.getLeaveRequestResponseStatus != current.getLeaveRequestResponseStatus;
+          return previous.deleteLeaveRequestStatus !=
+                  current.deleteLeaveRequestStatus ||
+              previous.approveLeaveRequestStatus !=
+                  current.approveLeaveRequestStatus ||
+              previous.rejectLeaveRequestStatus !=
+                  current.rejectLeaveRequestStatus;
         },
         listener: (context, state) {
-          if (state.getLeaveRequestResponseStatus == LoadDataStatus.success ||
-              state.getLeaveRequestResponseStatus == LoadDataStatus.fail) {
-            _refreshCompleter?.complete();
-            _refreshCompleter = null;
-          }
-          
           if (state.deleteLeaveRequestStatus == LoadDataStatus.success) {
             showAppSnackBar(
               context,
@@ -59,38 +79,59 @@ class _LeaveRequestPageState
               backgroundColor: AppColors.current.blackColor,
             );
           }
+          if (state.approveLeaveRequestStatus == LoadDataStatus.success) {
+            showAppSnackBar(
+              context,
+              message: 'Duyệt đơn nghỉ nghép thành công',
+              backgroundColor: AppColors.current.blackColor,
+            );
+          }
+          if (state.rejectLeaveRequestStatus == LoadDataStatus.success) {
+            showAppSnackBar(
+              context,
+              message: 'Từ chối đơn nghỉ nghép thành công',
+              backgroundColor: AppColors.current.blackColor,
+            );
+          }
         },
         builder: (context, state) {
+          final isLoading =
+              state.getLeaveRequestResponseStatus == LoadDataStatus.loading;
           final hasData = state.leaveRequests?.data.isNotEmpty ?? false;
 
           return Column(
             children: [
               _buildTabBar(state),
               Expanded(
-                child: RefreshIndicator(
-                    onRefresh: () async {
-                      _refreshCompleter = Completer<void>();
-                      bloc.add(LeaveRequestTabChanged(
-                          tabIndex: state.selectedTabIndex));
-                      return _refreshCompleter!.future.timeout(
-                        const Duration(seconds: 10),
-                        onTimeout: () {
-                          _refreshCompleter = null;
-                        },
-                      );
-                    },
-                    color: AppColors.current.blue500Color,
-                    child: hasData
-                        ? ListView.builder(
-                            padding: EdgeInsets.all(Dimens.d16.responsive()),
-                            itemCount: state.leaveRequests?.data.length,
-                            itemBuilder: (context, index) {
-                              return _buildLeaveRequestItem(
-                                  state, state.leaveRequests?.data[index]);
-                            },
-                          )
-                        : const EmptyDataPage()),
-              ),
+                  child: isLoading
+                      ? const LeaveRequestShimmer()
+                      : RefreshIndicator(
+                          onRefresh: () async {
+                            bloc.add(LeaveRequestTabChanged(
+                                tabIndex: state.selectedTabIndex));
+                          },
+                          color: AppColors.current.blackColor,
+                          backgroundColor: AppColors.current.whiteColor,
+                          child: hasData
+                              ? ListView.builder(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  controller: _scrollController,
+                                  padding:
+                                      EdgeInsets.all(Dimens.d16.responsive()),
+                                  itemCount: state.leaveRequests!.data.length +
+                                      (state.isLoadingMore ? 1 : 0),
+                                  itemBuilder: (context, index) {
+                                    if (index >=
+                                        state.leaveRequests!.data.length) {
+                                      return _buildLoadingIndicator();
+                                    }
+                                    return _buildLeaveRequestItem(state,
+                                        state.leaveRequests?.data[index]);
+                                  },
+                                )
+                              : const EmptyDataPage(),
+                        )),
             ],
           );
         },
@@ -106,7 +147,7 @@ class _LeaveRequestPageState
                     LeaveRequestTabChanged(tabIndex: state.selectedTabIndex));
               }
             },
-            backgroundColor: AppColors.current.blue500Color,
+            backgroundColor: AppColors.current.blackColor,
             child: Icon(
               Icons.add,
               color: AppColors.current.whiteColor,
@@ -595,6 +636,23 @@ class _LeaveRequestPageState
         statusText,
         style: AppTextStyles.s11w600Primary().copyWith(
           color: textColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: Dimens.d16.responsive()),
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: Dimens.d24.responsive(),
+        height: Dimens.d24.responsive(),
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            AppColors.current.blue500Color,
+          ),
         ),
       ),
     );

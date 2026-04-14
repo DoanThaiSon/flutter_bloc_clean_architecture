@@ -18,6 +18,7 @@ class UIButton extends StatelessWidget {
   final BoxShadow? boxShadow;
   final IconData? iconData;
   final String? icon;
+  final bool isLoading;
 
   const UIButton({
     super.key,
@@ -37,6 +38,7 @@ class UIButton extends StatelessWidget {
     this.boxShadow,
     this.iconData,
     this.icon,
+    this.isLoading = false,
   });
 
   @override
@@ -73,7 +75,7 @@ class UIButton extends StatelessWidget {
       ),
       child: TextButton(
         onPressed: () {
-          if (enable && onTap != null) {
+          if (enable && onTap != null && !isLoading) {
             onTap!();
           }
         },
@@ -93,45 +95,54 @@ class UIButton extends StatelessWidget {
             ),
             backgroundColor: WidgetStateProperty.all(Colors.transparent)),
         child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              iconData != null
-                  ? Icon(
-                      iconData,
-                      size: Dimens.d16.responsive(),
-                      color: AppColors.current.orangeColor,
-                    )
-                  : const SizedBox(),
-              iconData != null
-                  ? const SizedBox(
+          child: isLoading
+              ? SizedBox(
+                  width: Dimens.d20.responsive(),
+                  height: Dimens.d20.responsive(),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    iconData != null
+                        ? Icon(
+                            iconData,
+                            size: Dimens.d16.responsive(),
+                            color: AppColors.current.orangeColor,
+                          )
+                        : const SizedBox(),
+                    iconData != null
+                        ? const SizedBox(
+                            width: Dimens.d4,
+                          )
+                        : const SizedBox(),
+                    Text(
+                      text ?? '',
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.titleTextDefault(
+                        fontSize: textSize,
+                        color: enable == true ? textColor : AppColors.neutral500,
+                        fontWeight: enable == true ? fontWeight : FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(
                       width: Dimens.d4,
-                    )
-                  : const SizedBox(),
-              Text(
-                text ?? '',
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.titleTextDefault(
-                  fontSize: textSize,
-                  color: enable == true ? textColor : AppColors.neutral500,
-                  fontWeight: enable == true ? fontWeight : FontWeight.w400,
+                    ),
+                    icon != null
+                        ? Image.asset(
+                            icon ?? '',
+                            width: Dimens.d16,
+                            height: Dimens.d16,
+                            color: AppColors.current.orangeColor,
+                          )
+                        : const SizedBox(),
+                  ],
                 ),
-              ),
-              const SizedBox(
-                width: Dimens.d4,
-              ),
-              icon != null
-                  ? Image.asset(
-                      icon ?? '',
-                      width: Dimens.d16,
-                      height: Dimens.d16,
-                      color: AppColors.current.orangeColor,
-                    )
-                  : const SizedBox(),
-            ],
-          ),
         ),
       ),
     );

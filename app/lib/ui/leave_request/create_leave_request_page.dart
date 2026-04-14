@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:resources/resources.dart';
 import '../../app.dart';
+import '../../common_view/common_confirm_dialog.dart';
 import '../../common_view/common_text_field.dart';
 import '../../common_view/popup/common_show_snack_bar.dart';
 import '../../common_view/ui_button.dart';
@@ -40,23 +42,23 @@ class _CreateLeaveRequestPageState
   void _loadLeaveRequestData() {
     final request = widget.leaveRequest!;
     _reasonController.text = request.reason;
-    String leaveType;
+    LeaveType leaveType;
     if (request.dayType == 'full_day') {
       if (request.startDate == request.endDate) {
-        leaveType = 'Nghỉ 1 ngày';
+        leaveType = LeaveType.oneDay;
       } else {
-        leaveType = 'Nghỉ nhiều ngày';
+        leaveType = LeaveType.multipleDays;
       }
     } else {
-      leaveType = 'Nghỉ nửa ngày';
+      leaveType = LeaveType.halfDay;
     }
 
     // Determine shift
-    String? shift;
+    Shift? shift;
     if (request.dayType == 'full_day') {
-      shift = 'Cả ngày';
+      shift = Shift.fullDay;
     } else {
-      shift = request.shift == 'morning' ? 'Ca sáng' : 'Ca chiều';
+      shift = request.shift == 'morning' ? Shift.morning : Shift.afternoon;
     }
 
     // Parse dates
@@ -64,7 +66,7 @@ class _CreateLeaveRequestPageState
     DateTime? startDate;
     DateTime? endDate;
 
-    if (leaveType == 'Nghỉ nhiều ngày') {
+    if (leaveType == LeaveType.multipleDays) {
       startDate = DateTime.parse(request.startDate);
       endDate = DateTime.parse(request.endDate);
     } else {
@@ -122,6 +124,56 @@ class _CreateLeaveRequestPageState
               backgroundColor: AppColors.current.blackColor,
             );
           }
+          if (state.updateLeaveRequestErrorMessage != null &&
+              state.updateLeaveRequestErrorMessage!.isNotEmpty) {
+            showDialog(
+              barrierDismissible: false,
+              useSafeArea: true,
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return CustomConfirmDialog(
+                  icon: Image.asset(
+                    Assets.images.icons.error.path,
+                    width: Dimens.d50.responsive(),
+                    height: Dimens.d50.responsive(),
+                  ),
+                  description: state.updateLeaveRequestErrorMessage,
+                  confirmText: S.current.confirm,
+                  colorConfirmButton: AppColors.current.errorTextColor,
+                  onConfirm: () {
+                    navigator.pop(useRootNavigator: true);
+                    bloc.add(const ClearUpdateLeaveRequestErrorMessage());
+                  },
+                );
+              },
+            );
+            return;
+          }
+          if (state.createLeaveRequestErrorMessage != null &&
+              state.createLeaveRequestErrorMessage!.isNotEmpty) {
+            showDialog(
+              barrierDismissible: false,
+              useSafeArea: true,
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return CustomConfirmDialog(
+                  icon: Image.asset(
+                    Assets.images.icons.error.path,
+                    width: Dimens.d50.responsive(),
+                    height: Dimens.d50.responsive(),
+                  ),
+                  description: state.createLeaveRequestErrorMessage,
+                  confirmText: S.current.confirm,
+                  colorConfirmButton: AppColors.current.errorTextColor,
+                  onConfirm: () {
+                    navigator.pop(useRootNavigator: true);
+                    bloc.add(const ClearCreateLeaveRequestErrorMessage());
+                  },
+                );
+              },
+            );
+            return;
+          }
           if (isEditMode &&
               !_hasSetLeaveCode &&
               state.leaveCodes.isNotEmpty &&
@@ -177,10 +229,11 @@ class _CreateLeaveRequestPageState
     return _buildSection(
       title: 'Loại ngày nghỉ',
       required: true,
-      child: _buildDropdown(
+      child: _buildDropdown<LeaveType>(
         hint: 'Chọn loại ngày nghỉ',
         value: state.selectedLeaveType,
-        items: const ['Nghỉ 1 ngày', 'Nghỉ nhiều ngày', 'Nghỉ nửa ngày'],
+        items: LeaveType.values,
+        displayText: (type) => type.displayName,
         onChanged: (value) {
           bloc.add(LeaveTypeChanged(leaveType: value));
         },
@@ -189,18 +242,19 @@ class _CreateLeaveRequestPageState
   }
 
   Widget _buildShiftSection(LeaveRequestState state) {
-    final isFullDay = state.selectedLeaveType == 'Nghỉ 1 ngày' ||
-        state.selectedLeaveType == 'Nghỉ nhiều ngày';
+    final isFullDay = state.selectedLeaveType == LeaveType.oneDay ||
+        state.selectedLeaveType == LeaveType.multipleDays;
 
     return _buildSection(
       title: 'Ca nghỉ',
       required: true,
       child: isFullDay
           ? _buildDisabledField('Cả ngày')
-          : _buildDropdown(
+          : _buildDropdown<Shift>(
               hint: 'Chọn ca nghỉ',
               value: state.selectedShift,
-              items: const ['Ca sáng', 'Ca chiều'],
+              items: [Shift.morning, Shift.afternoon],
+              displayText: (shift) => shift.displayName,
               onChanged: (value) {
                 bloc.add(ShiftChanged(shift: value));
               },
@@ -236,7 +290,7 @@ class _CreateLeaveRequestPageState
                 ),
               ),
             )
-          : _buildDropdown(
+          : _buildStringDropdown(
               hint: 'Chọn mã xin nghỉ',
               value: state.selectedLeaveCode,
               items: leaveCodeNames,
@@ -248,7 +302,7 @@ class _CreateLeaveRequestPageState
   }
 
   Widget _buildDateSection(LeaveRequestState state) {
-    final isMultipleDays = state.selectedLeaveType == 'Nghỉ nhiều ngày';
+    final isMultipleDays = state.selectedLeaveType == LeaveType.multipleDays;
 
     if (isMultipleDays) {
       return Column(
@@ -387,8 +441,8 @@ class _CreateLeaveRequestPageState
       radius: Dimens.d12.responsive(),
       enableShadow: false,
       color: state.isFormValid
-          ? AppColors.current.blue500Color
-          : AppColors.current.secondaryTextColor,
+          ? AppColors.current.blackColor
+          : AppColors.neutral400,
       textColor: AppColors.current.whiteColor,
       onTap: state.isFormValid
           ? () {
@@ -441,7 +495,62 @@ class _CreateLeaveRequestPageState
     );
   }
 
-  Widget _buildDropdown({
+  Widget _buildDropdown<T>({
+    required String hint,
+    required T? value,
+    required List<T> items,
+    required String Function(T) displayText,
+    required Function(T) onChanged,
+  }) {
+    return Container(
+      height: Dimens.d40.responsive(),
+      padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
+      decoration: BoxDecoration(
+        color: AppColors.current.whiteColor,
+        borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
+        border: Border.all(
+          color: AppColors.current.borderDefaultColor,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          isExpanded: true,
+          hint: Text(
+            hint,
+            style: AppTextStyles.titleTextDefault(
+              fontSize: Dimens.d14.responsive(),
+              fontWeight: FontWeight.w400,
+              color: AppColors.current.secondaryTextColor,
+            ),
+          ),
+          value: value,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: Dimens.d24.responsive(),
+            color: AppColors.current.secondaryTextColor,
+          ),
+          style: AppTextStyles.titleTextDefault(
+            fontSize: Dimens.d14.responsive(),
+            fontWeight: FontWeight.w400,
+            color: AppColors.current.blackColor,
+          ),
+          items: items.map((T item) {
+            return DropdownMenuItem<T>(
+              value: item,
+              child: Text(displayText(item)),
+            );
+          }).toList(),
+          onChanged: (T? newValue) {
+            if (newValue != null) {
+              onChanged(newValue);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStringDropdown({
     required String hint,
     required String? value,
     required List<String> items,
@@ -512,7 +621,7 @@ class _CreateLeaveRequestPageState
         style: AppTextStyles.titleTextDefault(
           fontSize: Dimens.d14.responsive(),
           fontWeight: FontWeight.w400,
-          color: AppColors.current.secondaryTextColor,
+          color: AppColors.current.blackColor,
         ),
       ),
     );

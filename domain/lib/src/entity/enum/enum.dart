@@ -7,7 +7,9 @@ enum InitialAppRoute {
   login,
   main,
 }
+
 enum LoadDataStatus { init, fail, success, loading }
+
 enum Gender {
   male(ServerRequestResponseConstants.male),
   female(ServerRequestResponseConstants.female),
@@ -15,6 +17,7 @@ enum Gender {
   unknown(ServerRequestResponseConstants.unknown);
 
   const Gender(this.serverValue);
+
   final int serverValue;
 
   static const defaultValue = unknown;
@@ -34,15 +37,16 @@ enum LanguageCode {
     serverValue: ServerRequestResponseConstants.vi,
   );
 
-
   const LanguageCode({
     required this.localeCode,
     required this.serverValue,
   });
+
   final String localeCode;
   final String serverValue;
 
   static LanguageCode get defaultValue => vi;
+
   String get getFullCountryNameByLanguage {
     switch (this) {
       case LanguageCode.vi:
@@ -55,8 +59,6 @@ enum LanguageCode {
   }
 }
 
-
-
 enum NotificationType {
   unknown,
   newPost,
@@ -66,34 +68,100 @@ enum NotificationType {
 }
 
 enum BottomTab {
-  // home(icon: Icon(Icons.home), activeIcon: Icon(Icons.home)),
-  // search(icon: Icon(Icons.search), activeIcon: Icon(Icons.search)),
-  // account(icon: Icon(Icons.people), activeIcon: Icon(Icons.people));
   homeAttendance(icon: Icon(Icons.home), activeIcon: Icon(Icons.home)),
   historyAttendance(icon: Icon(Icons.history), activeIcon: Icon(Icons.history)),
   profileAttendance(icon: Icon(Icons.person), activeIcon: Icon(Icons.person));
-  
+
   const BottomTab({
     required this.icon,
     required this.activeIcon,
   });
+
   final Icon icon;
   final Icon activeIcon;
 
   String get title {
     switch (this) {
-      // case BottomTab.home:
-      //   return S.current.home;
-      // case BottomTab.search:
-      //   return S.current.search;
-      // case BottomTab.account:
-      //   return S.current.account;
       case BottomTab.homeAttendance:
-        return 'Trang chủ';
+        return S.current.home;
       case BottomTab.historyAttendance:
         return 'Lịch sử';
       case BottomTab.profileAttendance:
-        return 'Cá nhân';
+        return S.current.account;
     }
   }
 }
+enum LeaveType {
+  halfDay('Nghỉ nửa ngày', 'half_day'),
+  oneDay('Nghỉ 1 ngày', 'full_day'),
+  multipleDays('Nghỉ nhiều ngày', 'multiple_days');
+
+  const LeaveType(this.displayName, this.apiValue);
+
+  final String displayName;
+  final String apiValue;
+
+  static LeaveType? fromDisplayName(String? displayName) {
+    if (displayName == null) {
+      return null;
+    }
+    try {
+      return LeaveType.values.firstWhere(
+            (type) => type.displayName == displayName,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static LeaveType? fromApiValue(String? apiValue) {
+    if (apiValue == null) {
+      return null;
+    }
+    try {
+      return LeaveType.values.firstWhere(
+            (type) => type.apiValue == apiValue,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
+enum Shift {
+  fullDay('Cả ngày', 'full_day'),
+  morning('Ca sáng', 'morning'),
+  afternoon('Ca chiều', 'afternoon');
+
+  const Shift(this.displayName, this.apiValue);
+
+  final String displayName;
+  final String apiValue;
+
+  static Shift? fromDisplayName(String? displayName) {
+    if (displayName == null) {
+      return null;
+    }
+    try {
+      return Shift.values.firstWhere(
+            (shift) => shift.displayName == displayName,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Shift? fromApiValue(String? apiValue) {
+    if (apiValue == null) {
+      return null;
+    }
+    try {
+      return Shift.values.firstWhere(
+            (shift) => shift.apiValue == apiValue,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+}
+

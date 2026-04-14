@@ -43,6 +43,8 @@ dependencies:
   latlong2: any
   dropdown_button2: ^2.3.9
   vibration: ^3.1.5
+  geolocator: ^13.0.2
+  permission_handler: ^11.3.1
 #  firebase_core: ^3.10.1
 #  firebase_messaging: ^15.2.1
 dev_dependencies:

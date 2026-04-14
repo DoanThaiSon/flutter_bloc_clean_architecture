@@ -27,6 +27,9 @@ class _LanguagePageState extends BasePageState<LanguagePage, LanguageBloc> {
     return AppScaffold(
       appBar: CommonAppBar(
         text: S.current.language,
+        onLeadingPressed: (){
+          navigator.pop(useRootNavigator: true);
+        },
         centerTitle: true,
         titleTextStyle: AppTextStyles.titleTextDefault(
           fontWeight: FontWeight.w600,

@@ -1,6 +1,8 @@
 import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:resources/resources.dart';
+import 'package:shared/shared.dart';
 import '../../../app.dart';
 import 'leave_request.dart';
 
@@ -82,6 +84,18 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
       _onLoadLeaveRequestForEdit,
       transformer: log(),
     );
+    on<LoadMoreLeaveRequests>(
+      _onLoadMoreLeaveRequests,
+      transformer: log(),
+    );
+    on<ClearUpdateLeaveRequestErrorMessage>(
+      _onClearUpdateLeaveRequestErrorMessage,
+      transformer: log(),
+    );
+    on<ClearCreateLeaveRequestErrorMessage>(
+      _onClearCreateLeaveRequestErrorMessage,
+      transformer: log(),
+    );
   }
 
   final GetLeaveRequestsUseCase _getLeaveRequestsUseCase;
@@ -100,6 +114,9 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
   ) async {
     await runBlocCatching(
         handleLoading: false,
+        doOnSubscribe: () async => emit(state.copyWith(
+              getLeaveRequestResponseStatus: LoadDataStatus.init,
+            )),
         action: () async {
           final user = _repository.getUserPreference();
 
@@ -108,14 +125,16 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           emit(state.copyWith(
             currentUser: user,
             selectedTabIndex: defaultTab,
+            currentPage: 1,
+            hasMoreData: false,
+            getLeaveRequestResponseStatus: LoadDataStatus.loading,
           ));
 
-          // Update pending count for admin/manager
           if (user.role != 'user') {
             await _updatePendingCount(emit);
           }
 
-          await _loadLeaveRequestsByTab(defaultTab, emit);
+          await _loadLeaveRequestsByTab(defaultTab, emit, page: 1);
 
           emit(state.copyWith(
             getLeaveRequestResponseStatus: LoadDataStatus.success,
@@ -128,6 +147,11 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
                 loadDataException: e,
                 getLeaveRequestResponseStatus: LoadDataStatus.fail),
           );
+        },
+        doOnEventCompleted: () async {
+          emit(state.copyWith(
+            getLeaveRequestResponseStatus: LoadDataStatus.init,
+          ));
         });
   }
 
@@ -144,14 +168,15 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           emit(state.copyWith(
             selectedTabIndex: event.tabIndex,
             getLeaveRequestResponseStatus: LoadDataStatus.loading,
+            currentPage: 1,
+            hasMoreData: false,
           ));
 
-          // Update pending count for admin/manager
           if (state.currentUser?.role != 'user') {
             await _updatePendingCount(emit);
           }
 
-          await _loadLeaveRequestsByTab(event.tabIndex, emit);
+          await _loadLeaveRequestsByTab(event.tabIndex, emit, page: 1);
 
           emit(state.copyWith(
             getLeaveRequestResponseStatus: LoadDataStatus.success,
@@ -174,28 +199,49 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
 
   Future<void> _loadLeaveRequestsByTab(
     int tabIndex,
-    Emitter<LeaveRequestState> emit,
-  ) async {
+    Emitter<LeaveRequestState> emit, {
+    required int page,
+    bool isLoadMore = false,
+  }) async {
     LeaveRequestResponse response;
+    const limit = 20;
 
     if (tabIndex == 0) {
       final output = await _getAllLeaveRequestsUseCase.execute(
-        const GetAllLeaveRequestsInput(page: 1, limit: 100),
+        GetAllLeaveRequestsInput(page: page, limit: limit),
       );
       response = output.leaveRequestResponse;
     } else if (tabIndex == 2) {
       final output = await _getAllLeaveRequestsUseCase.execute(
-        const GetAllLeaveRequestsInput(page: 1, limit: 100, status: 'pending'),
+        GetAllLeaveRequestsInput(page: page, limit: limit, status: 'pending'),
       );
       response = output.leaveRequestResponse;
     } else {
       final output = await _getLeaveRequestsUseCase.execute(
-        const GetLeaveRequestsInput(page: 1, limit: 100),
+        GetLeaveRequestsInput(page: page, limit: limit),
       );
       response = output.leaveRequestResponse;
     }
 
-    emit(state.copyWith(leaveRequests: response));
+    final hasMore = response.data.length >= limit;
+
+    if (isLoadMore) {
+      final currentData = state.leaveRequests?.data ?? [];
+      final updatedResponse = response.copyWith(
+        data: [...currentData, ...response.data],
+      );
+      emit(state.copyWith(
+        leaveRequests: updatedResponse,
+        currentPage: page,
+        hasMoreData: hasMore,
+      ));
+    } else {
+      emit(state.copyWith(
+        leaveRequests: response,
+        currentPage: page,
+        hasMoreData: hasMore,
+      ));
+    }
   }
 
   Future<void> _onGetLeaveCodes(
@@ -240,13 +286,13 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
     LeaveTypeChanged event,
     Emitter<LeaveRequestState> emit,
   ) {
-    String? shift;
-    if (event.leaveType == 'Nghỉ 1 ngày' ||
-        event.leaveType == 'Nghỉ nhiều ngày') {
-      shift = 'Cả ngày';
+    Shift? shift;
+    if (event.leaveType == LeaveType.oneDay ||
+        event.leaveType == LeaveType.multipleDays) {
+      shift = Shift.fullDay;
     }
 
-    if (event.leaveType == 'Nghỉ nhiều ngày') {
+    if (event.leaveType == LeaveType.multipleDays) {
       emit(state.copyWith(
         selectedLeaveType: event.leaveType,
         selectedShift: shift,
@@ -333,24 +379,14 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           if (!state.isFormValid) {
             return;
           }
-          String dayType = 'full_day';
-          if (state.selectedLeaveType == 'Nghỉ nửa ngày') {
-            dayType = 'half_day';
-          } else if (state.selectedLeaveType == 'Nghỉ nhiều ngày') {
-            dayType = 'multiple_days';
-          }
 
-          String shift = 'full_day';
-          if (state.selectedShift == 'Ca sáng') {
-            shift = 'morning';
-          } else if (state.selectedShift == 'Ca chiều') {
-            shift = 'afternoon';
-          }
+          final dayType = state.selectedLeaveType!.apiValue;
+          final shift = state.selectedShift!.apiValue;
 
           String startDate;
           String endDate;
 
-          if (state.selectedLeaveType == 'Nghỉ nhiều ngày') {
+          if (state.selectedLeaveType == LeaveType.multipleDays) {
             startDate = _formatDateForApi(state.startDate!);
             endDate = _formatDateForApi(state.endDate!);
           } else {
@@ -371,12 +407,17 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           emit(
               state.copyWith(createLeaveRequestStatus: LoadDataStatus.success));
         },
-        handleError: true,
+        handleError: false,
         doOnError: (e) async {
+          String errorMessage = 'Có lỗi xảy ra';
+          if (e is RemoteException) {
+            errorMessage = e.generalServerMessage ?? 'Có lỗi xảy ra';
+          }
           emit(
             state.copyWith(
                 loadDataException: e,
-                createLeaveRequestStatus: LoadDataStatus.fail),
+                createLeaveRequestStatus: LoadDataStatus.fail,
+            createLeaveRequestErrorMessage: errorMessage),
           );
         },
         doOnEventCompleted: () async {
@@ -392,22 +433,41 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
     Emitter<LeaveRequestState> emit,
   ) async {
     await runBlocCatching(
-      action: () async {
-        await _approveLeaveRequestUseCase.execute(
-          ApproveLeaveRequestInput(leaveRequestId: event.leaveRequestId),
-        );
+        handleLoading: false,
+        doOnSubscribe: () async => emit(
+              state.copyWith(
+                approveLeaveRequestStatus: LoadDataStatus.init,
+              ),
+            ),
+        action: () async {
+          emit(state.copyWith(
+            approveLeaveRequestStatus: LoadDataStatus.loading,
+          ));
+          await _approveLeaveRequestUseCase.execute(
+            ApproveLeaveRequestInput(leaveRequestId: event.leaveRequestId),
+          );
+          emit(state.copyWith(
+              approveLeaveRequestStatus: LoadDataStatus.success));
+          await _updatePendingCount(emit);
 
-        // Update pending count
-        await _updatePendingCount(emit);
-
-        await _onLeaveRequestTabChanged(
-          LeaveRequestTabChanged(tabIndex: state.selectedTabIndex),
-          emit,
-        );
-      },
-      handleLoading: true,
-      handleError: true,
-    );
+          await _onLeaveRequestTabChanged(
+            LeaveRequestTabChanged(tabIndex: state.selectedTabIndex),
+            emit,
+          );
+        },
+        handleError: true,
+        doOnError: (e) async {
+          emit(
+            state.copyWith(
+                loadDataException: e,
+                approveLeaveRequestStatus: LoadDataStatus.fail),
+          );
+        },
+        doOnEventCompleted: () async {
+          emit(state.copyWith(
+            approveLeaveRequestStatus: LoadDataStatus.init,
+          ));
+        });
   }
 
   Future<void> _onRejectLeaveRequestButtonPressed(
@@ -415,26 +475,46 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
     Emitter<LeaveRequestState> emit,
   ) async {
     await runBlocCatching(
-      action: () async {
-        await _rejectLeaveRequestUseCase.execute(
-          RejectLeaveRequestInput(
-            leaveRequestId: event.leaveRequestId,
-            rejectionReason: event.rejectionReason,
-          ),
-        );
+        handleLoading: false,
+        doOnSubscribe: () async => emit(
+              state.copyWith(
+                rejectLeaveRequestStatus: LoadDataStatus.init,
+              ),
+            ),
+        action: () async {
+          emit(state.copyWith(
+            rejectLeaveRequestStatus: LoadDataStatus.loading,
+          ));
 
-        // Update pending count
-        await _updatePendingCount(emit);
+          await _rejectLeaveRequestUseCase.execute(
+            RejectLeaveRequestInput(
+              leaveRequestId: event.leaveRequestId,
+              rejectionReason: event.rejectionReason,
+            ),
+          );
+          emit(
+              state.copyWith(rejectLeaveRequestStatus: LoadDataStatus.success));
 
-        // Reload data for current tab
-        await _onLeaveRequestTabChanged(
-          LeaveRequestTabChanged(tabIndex: state.selectedTabIndex),
-          emit,
-        );
-      },
-      handleLoading: true,
-      handleError: true,
-    );
+          await _updatePendingCount(emit);
+
+          await _onLeaveRequestTabChanged(
+            LeaveRequestTabChanged(tabIndex: state.selectedTabIndex),
+            emit,
+          );
+        },
+        handleError: true,
+        doOnError: (e) async {
+          emit(
+            state.copyWith(
+                loadDataException: e,
+                rejectLeaveRequestStatus: LoadDataStatus.fail),
+          );
+        },
+        doOnEventCompleted: () async {
+          emit(state.copyWith(
+            rejectLeaveRequestStatus: LoadDataStatus.init,
+          ));
+        });
   }
 
   Future<void> _onDeleteLeaveRequestButtonPressed(
@@ -502,22 +582,13 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             (code) => code.name == state.selectedLeaveCode,
           );
 
-          String dayType;
-          String shift;
-
-          if (state.selectedLeaveType == 'Nghỉ 1 ngày' ||
-              state.selectedLeaveType == 'Nghỉ nhiều ngày') {
-            dayType = 'full_day';
-            shift = 'full_day';
-          } else {
-            dayType = 'half_day';
-            shift = state.selectedShift == 'Ca sáng' ? 'morning' : 'afternoon';
-          }
+          final dayType = state.selectedLeaveType!.apiValue;
+          final shift = state.selectedShift!.apiValue;
 
           String startDate;
           String endDate;
 
-          if (state.selectedLeaveType == 'Nghỉ nhiều ngày') {
+          if (state.selectedLeaveType == LeaveType.multipleDays) {
             startDate = _formatDateForApi(state.startDate!);
             endDate = _formatDateForApi(state.endDate!);
           } else {
@@ -539,12 +610,17 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
           emit(
               state.copyWith(updateLeaveRequestStatus: LoadDataStatus.success));
         },
-        handleError: true,
+        handleError: false,
         doOnError: (e) async {
+          String errorMessage = 'Có lỗi xảy ra';
+          if (e is RemoteException) {
+            errorMessage = e.generalServerMessage ?? 'Có lỗi xảy ra';
+          }
           emit(
             state.copyWith(
                 loadDataException: e,
-                updateLeaveRequestStatus: LoadDataStatus.fail),
+                updateLeaveRequestStatus: LoadDataStatus.fail,
+                updateLeaveRequestErrorMessage: errorMessage),
           );
         },
         doOnEventCompleted: () async {
@@ -553,6 +629,20 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             updateLeaveRequestStatus: LoadDataStatus.init,
           ));
         });
+  }
+
+  Future<void> _onClearUpdateLeaveRequestErrorMessage(
+    ClearUpdateLeaveRequestErrorMessage event,
+    Emitter<LeaveRequestState> emit,
+  ) async {
+    emit(state.copyWith(updateLeaveRequestErrorMessage: null));
+  }
+
+  Future<void> _onClearCreateLeaveRequestErrorMessage(
+    ClearCreateLeaveRequestErrorMessage event,
+    Emitter<LeaveRequestState> emit,
+  ) async {
+    emit(state.copyWith(createLeaveRequestErrorMessage: null));
   }
 
   String _formatDateForApi(DateTime date) {
@@ -586,5 +676,56 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
       endDate: event.endDate,
       reason: event.reason,
     ));
+  }
+
+  Future<void> _onLoadMoreLeaveRequests(
+    LoadMoreLeaveRequests event,
+    Emitter<LeaveRequestState> emit,
+  ) async {
+    if (!state.canLoadMore) {
+      return;
+    }
+
+    await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async => emit(
+        state.copyWith(
+          loadMoreStatus: LoadDataStatus.init,
+          isLoadingMore: true,
+        ),
+      ),
+      action: () async {
+        emit(state.copyWith(
+          loadMoreStatus: LoadDataStatus.loading,
+        ));
+
+        final nextPage = state.currentPage + 1;
+        await _loadLeaveRequestsByTab(
+          state.selectedTabIndex,
+          emit,
+          page: nextPage,
+          isLoadMore: true,
+        );
+
+        emit(state.copyWith(
+          loadMoreStatus: LoadDataStatus.success,
+        ));
+      },
+      handleError: true,
+      doOnError: (e) async {
+        emit(
+          state.copyWith(
+            loadDataException: e,
+            loadMoreStatus: LoadDataStatus.fail,
+          ),
+        );
+      },
+      doOnEventCompleted: () async {
+        emit(state.copyWith(
+          loadMoreStatus: LoadDataStatus.init,
+          isLoadingMore: false,
+        ));
+      },
+    );
   }
 }

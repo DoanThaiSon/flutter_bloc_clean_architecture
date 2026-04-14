@@ -18,7 +18,9 @@ abstract class Repository {
     required String password,
   });
 
-  Future<void> logout();
+  Future<void> logout({
+    required String refreshToken,
+  });
 
   Future<void> resetPassword({
     required String token,
@@ -54,6 +56,11 @@ abstract class Repository {
 
   Future<AttendanceResponse> getTodayAttendance();
 
+  Future<AttendanceHistoryResponse> getAttendanceHistory({
+    required String startDate,
+    required String endDate,
+  });
+
   Future<CheckoutResponse> checkout({
     required double latitude,
     required double longitude,
@@ -69,11 +76,8 @@ abstract class Repository {
     required int limit,
   });
 
-  Future<LeaveRequestResponse> getAllLeaveRequests({
-    required int page,
-    required int limit,
-    String? status
-  });
+  Future<LeaveRequestResponse> getAllLeaveRequests(
+      {required int page, required int limit, String? status});
 
   Future<LeaveCodeResponse> getLeaveCodes();
 
