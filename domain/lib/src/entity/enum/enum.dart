@@ -18,7 +18,7 @@ enum Gender {
 
   const Gender(this.serverValue);
 
-  final int serverValue;
+  final String serverValue;
 
   static const defaultValue = unknown;
 }
@@ -164,4 +164,3 @@ enum Shift {
     }
   }
 }
-

@@ -225,10 +225,14 @@ class _AttendanceHomePageState
   }
 
   String formatWorkingHours(double hours) {
-    final int h = hours.floor();
-    final int m = ((hours - h) * 60).round();
+    if (hours == 0) {
+      return '--:--';
+    } else {
+      final int h = hours.floor();
+      final int m = ((hours - h) * 60).round();
 
-    return '${h}h${m}';
+      return '${h}h${m}';
+    }
   }
 
   Widget _buildCheckInOutButtons(AttendanceHomeState state) {
@@ -408,6 +412,46 @@ class _AttendanceHomePageState
     );
   }
 
+  Widget _buildAction(
+      {required Function()? onTap,
+      required String icon,
+      required String actionName}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: Dimens.d50.responsive(),
+            height: Dimens.d50.responsive(),
+            padding: EdgeInsets.all(Dimens.d8.responsive()),
+            decoration: const BoxDecoration(
+              color: AppColors.neutral100,
+              shape: BoxShape.circle,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(Dimens.d4.responsive()),
+              child: Image.asset(
+                icon,
+                width: Dimens.d30.responsive(),
+                height: Dimens.d30.responsive(),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: Dimens.d5.responsive(),
+          ),
+          Text(
+            actionName,
+            style: AppTextStyles.titleTextDefault(
+                fontWeight: FontWeight.w600,
+                color: AppColors.current.blackColor),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buildWorkManagement(AttendanceHomeState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,41 +470,29 @@ class _AttendanceHomePageState
             color: AppColors.current.whiteColor,
             borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
           ),
-          child: GestureDetector(
-            onTap: () {
-              navigator.push(const AppRouteInfo.leaveRequest());
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: Dimens.d50.responsive(),
-                  height: Dimens.d50.responsive(),
-                  padding: EdgeInsets.all(Dimens.d8.responsive()),
-                  decoration: const BoxDecoration(
-                    color: AppColors.neutral100,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(Dimens.d4.responsive()),
-                    child: Image.asset(
-                      Assets.images.icons.triangleWarning.path,
-                      width: Dimens.d30.responsive(),
-                      height: Dimens.d30.responsive(),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: Dimens.d5.responsive(),
-                ),
-                Text(
-                  'Xin nghỉ',
-                  style: AppTextStyles.titleTextDefault(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.current.blackColor),
-                )
-              ],
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildAction(
+                  onTap: () =>
+                      navigator.push(const AppRouteInfo.leaveRequest()),
+                  icon: Assets.images.icons.healthCheck.path,
+                  actionName: 'Xin nghỉ'),
+              SizedBox(
+                width: Dimens.d24.responsive(),
+              ),
+              _buildAction(
+                  onTap: () {},
+                  icon: Assets.images.icons.overtime.path,
+                  actionName: 'Làm thêm'),
+              SizedBox(
+                width: Dimens.d24.responsive(),
+              ),
+              _buildAction(
+                  onTap: () {},
+                  icon: Assets.images.icons.workFromHome.path,
+                  actionName: 'Làm từ xa'),
+            ],
           ),
         ),
       ],

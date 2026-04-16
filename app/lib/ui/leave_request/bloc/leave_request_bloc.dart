@@ -120,7 +120,8 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
         action: () async {
           final user = _repository.getUserPreference();
 
-          final defaultTab = user.role == 'user' ? 1 : 0;
+          // Default tab là 1 (Của tôi) nếu user có role là 'user' và không phải manager
+          final defaultTab = (user.role == 'user' && !user.isManager) ? 1 : 0;
 
           emit(state.copyWith(
             currentUser: user,
@@ -130,7 +131,8 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             getLeaveRequestResponseStatus: LoadDataStatus.loading,
           ));
 
-          if (user.role != 'user') {
+          // Chỉ update pending count nếu không phải user thường hoặc là manager
+          if (user.role != 'user' || user.isManager) {
             await _updatePendingCount(emit);
           }
 
@@ -172,7 +174,8 @@ class LeaveRequestBloc extends BaseBloc<LeaveRequestEvent, LeaveRequestState> {
             hasMoreData: false,
           ));
 
-          if (state.currentUser?.role != 'user') {
+          // Chỉ update pending count nếu không phải user thường hoặc là manager
+          if (state.currentUser?.role != 'user' || state.currentUser?.isManager == true) {
             await _updatePendingCount(emit);
           }
 

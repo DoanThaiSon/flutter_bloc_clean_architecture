@@ -1,0 +1,1 @@
+/Users/sondoan/Desktop/flutter_bloc_clean_architecture/app/android/app/build/intermediates/cxx/debug/5f5n4m4w/obj/armeabi-v7a

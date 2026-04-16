@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/sondoan/Downloads/development/flutter3357/packages/flutter_tools/gradle/src/main/scripts/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/sondoan/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/sondoan/Desktop/flutter_bloc_clean_architecture/app/android/app/.cxx/debug/5f5n4m4w/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/sondoan/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/sondoan/Desktop/flutter_bloc_clean_architecture/app/android/app/.cxx/debug/5f5n4m4w/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

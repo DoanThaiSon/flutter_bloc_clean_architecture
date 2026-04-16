@@ -116,8 +116,8 @@ class AppApiService {
         'endDate': endDate,
       },
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
-      decoder: (json) =>
-          ApiAttendanceHistoryDataResponse.fromJson(json as Map<String, dynamic>),
+      decoder: (json) => ApiAttendanceHistoryDataResponse.fromJson(
+          json as Map<String, dynamic>),
     );
   }
 
@@ -285,6 +285,37 @@ class AppApiService {
       },
       successResponseMapperType: SuccessResponseMapperType.resultsJsonArray,
       decoder: (json) => ApiUserData.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiCreateDepartmentResponse?> createDepartment({
+    required String name,
+    required String code,
+    String? description,
+    String? managerId,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.post,
+      path: '/departments',
+      body: {
+        'name': name,
+        'code': code,
+        if (description != null) 'description': description,
+        if (managerId != null) 'managerId': managerId,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiCreateDepartmentResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiManagersResponse?> getManagers() async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/users/managers',
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiManagersResponse.fromJson(json as Map<String, dynamic>),
     );
   }
 }

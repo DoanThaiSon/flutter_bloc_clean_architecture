@@ -30,7 +30,7 @@ class ApiLeaveRequestData with _$ApiLeaveRequestData {
     @JsonKey(name: 'leaveCodeId') String? leaveCodeId,
     @JsonKey(name: 'startDate') String? startDate,
     @JsonKey(name: 'endDate') String? endDate,
-    @JsonKey(name: 'totalDays') int? totalDays,
+    @JsonKey(name: 'totalDays') double? totalDays,
     @JsonKey(name: 'reason') String? reason,
     @JsonKey(name: 'status') String? status,
     @JsonKey(name: 'approvedBy') String? approvedBy,

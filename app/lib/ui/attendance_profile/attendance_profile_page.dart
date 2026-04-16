@@ -121,9 +121,12 @@ class _AttendanceProfilePageState
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildInfoChip('Email', 'VN-88291'),
+              _buildInfoChip('Email', state.user?.employeeCode ?? ''),
               SizedBox(width: Dimens.d16.responsive()),
-              _buildInfoChip('PHÒNG BAN', 'Kỹ thuật'),
+              _buildInfoChip(
+                'PHÒNG BAN',
+                '${state.user?.department?.name ?? ''} (${state.user?.isManager == true ? 'CBQL' : 'Nhân viên'})',
+              ),
             ],
           ),
         ],
@@ -233,7 +236,7 @@ class _AttendanceProfilePageState
           subtitle: 'Chính sách bảo vệ quyền riêng tư',
           backgroundColor: AppColors.current.tertiaryColor,
           onTap: () {
-            navigator.push(AppRouteInfo.webView(
+            navigator.push(const AppRouteInfo.webView(
                 url: 'https://phenikaa-x.com/privacy-policy',
                 title: 'Điều khoản và chính sách'));
           }),
@@ -247,7 +250,7 @@ class _AttendanceProfilePageState
           icon: Icons.translate,
           title: S.current.language,
           subtitle: 'Đổi ngôn ngữ của App',
-          backgroundColor:AppColors.current.tertiaryColor,
+          backgroundColor: AppColors.current.tertiaryColor,
           iconColor: AppColors.current.blackColor,
           onTap: () {
             navigator.push(const AppRouteInfo.language());

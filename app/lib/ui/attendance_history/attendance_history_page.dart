@@ -182,9 +182,10 @@ class _AttendanceHistoryPageState
             Expanded(
               child: _buildSummaryCard(
                 label: 'NGHỈ PHÉP',
-                value: '${summary?.leave ?? 0}',
+                value: '${summary?.leave ?? 0.0}',
                 subtitle: 'Ngày',
-                backgroundColor: AppColors.current.backgroundLayer1,
+                backgroundColor: AppColors.current.completeTextColor.withValues(alpha: 0.1),
+                valueColor: AppColors.current.blackColor,
               ),
             ),
           ],
@@ -214,7 +215,7 @@ class _AttendanceHistoryPageState
             style: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d10.responsive(),
               fontWeight: FontWeight.w600,
-              color: AppColors.current.secondaryTextColor,
+              color: AppColors.current.blackColor,
             ),
           ),
           SizedBox(height: Dimens.d4.responsive()),
@@ -231,7 +232,7 @@ class _AttendanceHistoryPageState
             style: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d10.responsive(),
               fontWeight: FontWeight.w400,
-              color: AppColors.current.secondaryTextColor,
+              color: AppColors.current.blackColor,
             ),
           ),
         ],
@@ -325,13 +326,22 @@ class _AttendanceHistoryPageState
     while (dayCounter <= daysInMonth) {
       final currentDate = DateTime(state.selectedYear, state.selectedMonth, dayCounter);
       final attendance = _getAttendanceForDate(state, currentDate);
+      final leaveRecord = _getLeaveRecordForDate(state, currentDate);
+      
+      // Ưu tiên hiển thị leave record nếu có, nếu không thì hiển thị attendance
+      String? status;
+      if (leaveRecord != null) {
+        status = 'leave';
+      } else if (attendance != null && attendance.date != null) {
+        status = attendance.status.name;
+      }
       
       currentWeek.add(_buildDayCell(
         dayCounter,
         date: currentDate,
         selectedDate: state.selectedDate,
         isCurrentMonth: true,
-        status: attendance?.status.name,
+        status: status,
       ));
 
       if (currentWeek.length == 7) {
@@ -381,6 +391,20 @@ class _AttendanceHistoryPageState
       },
       orElse: () => const Attendance(),
     );
+  }
+
+  // Helper method to get leave record for a specific date
+  LeaveRecord? _getLeaveRecordForDate(AttendanceHistoryState state, DateTime date) {
+    final leaveRecords = state.attendanceHistory?.leaveRecords ?? [];
+    for (final record in leaveRecords) {
+      if (record.date == null) continue;
+      if (record.date!.year == date.year &&
+          record.date!.month == date.month &&
+          record.date!.day == date.day) {
+        return record;
+      }
+    }
+    return null;
   }
 
   // Helper method to get status for a day (mock data for now)

@@ -53,7 +53,6 @@ class _CreateLeaveRequestPageState
       leaveType = LeaveType.halfDay;
     }
 
-    // Determine shift
     Shift? shift;
     if (request.dayType == 'full_day') {
       shift = Shift.fullDay;
@@ -61,7 +60,6 @@ class _CreateLeaveRequestPageState
       shift = request.shift == 'morning' ? Shift.morning : Shift.afternoon;
     }
 
-    // Parse dates
     DateTime? selectedDate;
     DateTime? startDate;
     DateTime? endDate;

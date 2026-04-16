@@ -31,9 +31,9 @@ class ApiLeaveRequestDataMapper extends BaseDataMapper<ApiLeaveRequestData, Leav
       destroy: data?.destroy ?? false,
       approver: data?.approver != null
           ? User(
-              id: 0,
-              email: data!.approver!.email ?? '',
-              name: data.approver!.username ?? '',
+              id: data?.approver?.id??'',
+              email: data?.approver?.email ?? '',
+              name: data?.approver?.username ?? '',
             )
           : null,
     );

@@ -1,0 +1,2 @@
+/Users/sondoan/Desktop/flutter_bloc_clean_architecture/app/android/app/.cxx/debug/5f5n4m4w/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/sondoan/Desktop/flutter_bloc_clean_architecture/app/android/app/.cxx/debug/5f5n4m4w/armeabi-v7a/CMakeFiles/rebuild_cache.dir

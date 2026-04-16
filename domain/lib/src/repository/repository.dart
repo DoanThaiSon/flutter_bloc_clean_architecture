@@ -112,4 +112,13 @@ abstract class Repository {
     required String endDate,
     required String reason,
   });
+
+  Future<Department> createDepartment({
+    required String name,
+    required String code,
+    String? description,
+    String? managerId,
+  });
+
+  Future<List<User>> getManagers();
 }

@@ -12,8 +12,8 @@ class ServerRequestResponseConstants {
   static const ja = 'JA';
 
   /// gender
-  static const male = 0;
-  static const female = 1;
-  static const other = 2;
-  static const unknown = -1;
+  static const male = 'male';
+  static const female = 'female';
+  static const other = 'other';
+  static const unknown = 'unknown';
 }

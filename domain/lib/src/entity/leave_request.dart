@@ -15,7 +15,7 @@ class LeaveRequest with _$LeaveRequest {
     @Default('') String creatorName,
     @Default('') String startDate,
     @Default('') String endDate,
-    @Default(0) int totalDays,
+    @Default(0.0) double totalDays,
     @Default('') String reason,
     @Default('') String status,
     @Default('') String approvedBy,

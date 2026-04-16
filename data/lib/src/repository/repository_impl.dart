@@ -20,6 +20,7 @@ class RepositoryImpl implements Repository {
     this._leaveRequestResponseDataMapper,
     this._leaveCodeResponseDataMapper,
     this._createLeaveRequestResponseDataMapper,
+    this._departmentDataMapper,
   );
 
   final AppApiService _appApiService;
@@ -31,12 +32,14 @@ class RepositoryImpl implements Repository {
   final GenderDataMapper _genderDataMapper;
   final ApiLoginUserDataMapper _loginUserDataMapper;
   final ApiAttendanceResponseDataMapper _attendanceResponseDataMapper;
-  final ApiAttendanceHistoryResponseDataMapper _attendanceHistoryResponseDataMapper;
+  final ApiAttendanceHistoryResponseDataMapper
+      _attendanceHistoryResponseDataMapper;
   final ApiCheckoutResponseDataMapper _checkoutResponseDataMapper;
   final ApiLeaveRequestResponseDataMapper _leaveRequestResponseDataMapper;
   final ApiLeaveCodeResponseDataMapper _leaveCodeResponseDataMapper;
   final ApiCreateLeaveRequestResponseDataMapper
       _createLeaveRequestResponseDataMapper;
+  final ApiDepartmentDataMapper _departmentDataMapper;
 
   @override
   bool get isLoggedIn => _appPreferences.isLoggedIn;
@@ -286,4 +289,26 @@ class RepositoryImpl implements Repository {
   @override
   Future<bool> saveUserPreference(User user) => _appPreferences
       .saveCurrentUser(_preferenceUserDataMapper.mapToData(user));
+
+  @override
+  Future<Department> createDepartment({
+    required String name,
+    required String code,
+    String? description,
+    String? managerId,
+  }) async {
+    final response = await _appApiService.createDepartment(
+      name: name,
+      code: code,
+      description: description,
+      managerId: managerId,
+    );
+    return _departmentDataMapper.mapToEntity(response?.data);
+  }
+
+  @override
+  Future<List<User>> getManagers() async {
+    final response = await _appApiService.getManagers();
+    return _userDataMapper.mapToListEntity(response?.data);
+  }
 }

@@ -160,6 +160,8 @@ class _LeaveRequestPageState
 
   Widget _buildTabBar(LeaveRequestState state) {
     final isUserRole = state.isUserRole;
+    final isManager = state.currentUser?.isManager;
+    print('sondoan ${isManager}');
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Dimens.d16.responsive()),
@@ -178,7 +180,7 @@ class _LeaveRequestPageState
                 state,
                 'Tất cả',
                 0,
-                enabled: !isUserRole,
+                enabled: !isUserRole||isManager==true,
               ),
             ),
             Expanded(child: _buildTabItem(state, 'Của tôi', 1)),
@@ -188,7 +190,7 @@ class _LeaveRequestPageState
                 'Cần duyệt',
                 2,
                 badgeCount: state.pendingCount > 0 ? state.pendingCount : null,
-                enabled: !isUserRole,
+                enabled: !isUserRole||isManager==true,
               ),
             ),
           ],
@@ -338,6 +340,23 @@ class _LeaveRequestPageState
               Expanded(
                 child: Text(
                   '${DateTimeUtils.formatIsoString(request?.startDate)} - ${DateTimeUtils.formatIsoString(request?.endDate)} (${request?.totalDays} ngày)',
+                  style: AppTextStyles.s13w400Primary(),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Dimens.d8.responsive()),
+          Row(
+            children: [
+              Icon(
+                Icons.access_alarm,
+                size: Dimens.d16.responsive(),
+                color: AppColors.current.blue500Color,
+              ),
+              SizedBox(width: Dimens.d8.responsive()),
+              Expanded(
+                child: Text(
+                  Shift.fromApiValue(request?.shift)?.displayName ?? '',
                   style: AppTextStyles.s13w400Primary(),
                 ),
               ),

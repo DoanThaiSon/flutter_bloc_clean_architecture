@@ -40,7 +40,7 @@ class EmptyDataPage extends StatelessWidget {
                       fit: BoxFit.contain,
                     )
                         : Image.asset(
-                      Assets.images.icons.triangleWarning.path,
+                      Assets.images.icons.box.path,
                       width: Dimens.d80.responsive(),
                       height: Dimens.d80.responsive(),
                       fit: BoxFit.contain,

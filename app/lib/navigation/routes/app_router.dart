@@ -25,7 +25,7 @@ class AppRouter extends RootStackRouter {
           ),
           AutoRoute(
             page: HistoryAttendanceTab.page,
-            maintainState: true,
+            maintainState: false,
             children: [
               AutoRoute(page: AttendanceHistoryRoute.page, initial: true),
             ],
@@ -45,6 +45,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: AttendanceProfileRoute.page),
         AutoRoute(page: LeaveRequestRoute.page),
         AutoRoute(page: CreateLeaveRequestRoute.page),
+        AutoRoute(page: CreateDepartmentRoute.page),
         AutoRoute(page: WebViewRoute.page),
       ];
 }

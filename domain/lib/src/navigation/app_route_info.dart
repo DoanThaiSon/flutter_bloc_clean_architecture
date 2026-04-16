@@ -16,6 +16,7 @@ class AppRouteInfo with _$AppRouteInfo {
   const factory AppRouteInfo.profileAttendance() = _ProfileAttendance;
   const factory AppRouteInfo.leaveRequest() = _LeaveRequest;
   const factory AppRouteInfo.createLeaveRequest({LeaveRequest? leaveRequest}) = CreateLeaveRequest;
+  const factory AppRouteInfo.createDepartment() = _CreateDepartment;
   const factory AppRouteInfo.webView(
       {required String url, required String title}) = _WebViewPage;
 }

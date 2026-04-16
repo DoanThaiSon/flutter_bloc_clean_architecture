@@ -19,6 +19,7 @@ class AppRouteInfoMapper extends BaseRouteInfoMapper {
       leaveRequest: () => const LeaveRequestRoute(),
       createLeaveRequest: (leaveRequest) =>
           CreateLeaveRequestRoute(leaveRequest: leaveRequest),
+      createDepartment: () => const CreateDepartmentRoute(),
       webView: (String url, String title) =>
           WebViewRoute(url: url, title: title),
     );
