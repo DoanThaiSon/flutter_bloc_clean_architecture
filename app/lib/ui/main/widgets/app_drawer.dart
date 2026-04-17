@@ -4,7 +4,9 @@ import 'package:get_it/get_it.dart';
 import '../../../app.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  const AppDrawer({this.user, super.key});
+
+  final User? user;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +36,10 @@ class AppDrawer extends StatelessWidget {
                     context,
                     icon: Icons.meeting_room,
                     title: 'Phòng ban',
-                    onTap: () async{
+                    onTap: () async {
                       Navigator.pop(context);
-                     await navigator.push(const AppRouteInfo.createDepartment());
+                      await navigator
+                          .push(const AppRouteInfo.departmentList());
                     },
                   ),
                   _buildMenuItem(
@@ -112,7 +115,7 @@ class AppDrawer extends StatelessWidget {
           ),
           SizedBox(height: Dimens.d16.responsive()),
           Text(
-            'Quản trị viên',
+            '${user?.name}(${user?.role})',
             style: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d20.responsive(),
               fontWeight: FontWeight.bold,

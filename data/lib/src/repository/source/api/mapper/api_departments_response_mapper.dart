@@ -4,9 +4,9 @@ import 'package:injectable/injectable.dart';
 import '../../../../../data.dart';
 
 @Injectable()
-class DepartmentMapper
+class ApiDepartmentsResponseMapper
     extends BaseDataMapper<ApiDepartmentsResponse, List<Department>> {
-  DepartmentMapper(this._departmentDataMapper);
+  ApiDepartmentsResponseMapper(this._departmentDataMapper);
 
   final ApiDepartmentDataMapper _departmentDataMapper;
 

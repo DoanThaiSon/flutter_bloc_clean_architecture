@@ -8,13 +8,6 @@ abstract class CreateDepartmentEvent extends BaseBlocEvent {
 }
 
 @freezed
-class CreateDepartmentPageInitiated extends CreateDepartmentEvent
-    with _$CreateDepartmentPageInitiated {
-  const factory CreateDepartmentPageInitiated() =
-      _CreateDepartmentPageInitiated;
-}
-
-@freezed
 class DepartmentNameChanged extends CreateDepartmentEvent
     with _$DepartmentNameChanged {
   const factory DepartmentNameChanged({required String name}) =
@@ -42,7 +35,14 @@ class ManagerSelected extends CreateDepartmentEvent with _$ManagerSelected {
 
 @freezed
 class GetManagersEvent extends CreateDepartmentEvent with _$GetManagersEvent {
-  const factory GetManagersEvent() = _GetManagersEvent;
+  const factory GetManagersEvent({
+    @Default(false) bool isRefresh,
+  }) = _GetManagersEvent;
+}
+
+@freezed
+class LoadMoreManagers extends CreateDepartmentEvent with _$LoadMoreManagers {
+  const factory LoadMoreManagers() = _LoadMoreManagers;
 }
 
 @freezed
@@ -57,4 +57,17 @@ class ClearCreateDepartmentErrorMessage extends CreateDepartmentEvent
     with _$ClearCreateDepartmentErrorMessage {
   const factory ClearCreateDepartmentErrorMessage() =
       _ClearCreateDepartmentErrorMessage;
+}
+
+@freezed
+class LoadDepartments extends CreateDepartmentEvent with _$LoadDepartments {
+  const factory LoadDepartments({
+    @Default(false) bool isRefresh,
+  }) = _LoadDepartments;
+}
+
+@freezed
+class LoadMoreDepartments extends CreateDepartmentEvent
+    with _$LoadMoreDepartments {
+  const factory LoadMoreDepartments() = _LoadMoreDepartments;
 }

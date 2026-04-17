@@ -272,21 +272,21 @@ class AppApiService {
     );
   }
 
-  Future<ResultsListResponse<ApiUserData>?> getUsers({
-    required int page,
-    required int? limit,
-  }) {
-    return _randomUserApiClient.request(
-      method: RestMethod.get,
-      path: '',
-      queryParameters: {
-        'page': page,
-        'results': limit,
-      },
-      successResponseMapperType: SuccessResponseMapperType.resultsJsonArray,
-      decoder: (json) => ApiUserData.fromJson(json as Map<String, dynamic>),
-    );
-  }
+  // Future<ResultsListResponse<ApiUserData>?> getUsers({
+  //   required int page,
+  //   required int? limit,
+  // }) {
+  //   return _randomUserApiClient.request(
+  //     method: RestMethod.get,
+  //     path: '',
+  //     queryParameters: {
+  //       'page': page,
+  //       'results': limit,
+  //     },
+  //     successResponseMapperType: SuccessResponseMapperType.resultsJsonArray,
+  //     decoder: (json) => ApiUserData.fromJson(json as Map<String, dynamic>),
+  //   );
+  // }
 
   Future<ApiCreateDepartmentResponse?> createDepartment({
     required String name,
@@ -309,13 +309,37 @@ class AppApiService {
     );
   }
 
-  Future<ApiManagersResponse?> getManagers() async {
+  Future<ApiManagersResponse?> getUsers({
+    required int page,
+    required int limit,
+  }) async {
     return _authAppServerApiClient.request(
       method: RestMethod.get,
-      path: '/users/managers',
+      path: '/users',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
       decoder: (json) =>
           ApiManagersResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiDepartmentsResponse?> getDepartments({
+    required int page,
+    required int limit,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/departments',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiDepartmentsResponse.fromJson(json as Map<String, dynamic>),
     );
   }
 }

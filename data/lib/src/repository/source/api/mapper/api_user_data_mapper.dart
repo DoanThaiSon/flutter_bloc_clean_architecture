@@ -1,35 +1,56 @@
 import 'package:domain/domain.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shared/shared.dart';
-
 import '../../../../../data.dart';
 
 @Injectable()
-class ApiUserDataMapper extends BaseDataMapper<ApiUserData, User> {
+class ApiUserDataMapper extends BaseDataMapper<ApiUserData, User>
+    with DataMapperMixin {
   ApiUserDataMapper(
     this._genderDataMapper,
-    this._apiImageUrlDataMapper,
+    this._apiDepartmentDataMapper,
   );
 
   final GenderDataMapper _genderDataMapper;
-  final ApiImageUrlDataMapper _apiImageUrlDataMapper;
+  final ApiDepartmentDataMapper _apiDepartmentDataMapper;
 
   @override
   User mapToEntity(ApiUserData? data) {
     return User(
         id: data?.id ?? User.defaultId,
         email: data?.email ?? User.defaultEmail,
-        name: data?.name??User.defaultName,
-        employeeCode: data?.employeeCode??User.defaultEmployeeCode,
-        birthday: DateTimeUtils.tryParse(
-              date: data?.birthday,
-              format: DateTimeFormatConstants.appServerResponse,
-            ) ??
-            User.defaultBirthday,
-        phoneNumber: data?.phoneNumber??User.defaultPhoneNumber,
-        // department: ,
-        avatar: _apiImageUrlDataMapper.mapToEntity(data?.avatar),
+        name: data?.username ?? User.defaultName,
+        employeeCode: data?.employeeCode ?? User.defaultEmployeeCode,
+        phoneNumber: data?.phoneNumber ?? User.defaultPhoneNumber,
+        birthday: data?.birthday != null
+            ? DateTime.tryParse(data!.birthday!)
+            : User.defaultBirthday,
+        joinDate: data?.joinDate != null
+            ? DateTime.tryParse(data!.joinDate!)
+            : User.defaultJoinDate,
         gender: _genderDataMapper.mapToEntity(data?.gender),
-        role: data?.role ?? '');
+        department: _apiDepartmentDataMapper.mapToEntity(data?.department),
+        role: data?.role ?? User.defaultRole,
+        isManager: data?.isManager ?? false,
+        managedDepartments:
+            _apiDepartmentDataMapper.mapToListEntity(data?.managedDepartments));
+  }
+
+  @override
+  ApiUserData mapToData(User entity) {
+    return ApiUserData(
+        id: entity.id,
+        email: entity.email,
+        username: entity.name,
+        employeeCode: entity.employeeCode,
+        phoneNumber: entity.phoneNumber,
+        birthday: entity.birthday?.toIso8601String(),
+        joinDate: entity.joinDate?.toIso8601String(),
+        gender: _genderDataMapper.mapToData(entity.gender),
+        departmentId: entity.department?.id ?? '',
+        departmentName: entity.department?.name ?? '',
+        departmentCode: entity.department?.code ?? '',
+        departmentDescription: entity.department?.description ?? '',
+        role: entity.role,
+        isManager: entity.isManager);
   }
 }

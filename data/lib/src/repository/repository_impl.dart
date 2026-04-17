@@ -13,7 +13,7 @@ class RepositoryImpl implements Repository {
     this._userDataMapper,
     this._languageCodeDataMapper,
     this._genderDataMapper,
-    this._loginUserDataMapper,
+    this._apiUserDataMapper,
     this._attendanceResponseDataMapper,
     this._attendanceHistoryResponseDataMapper,
     this._checkoutResponseDataMapper,
@@ -21,16 +21,17 @@ class RepositoryImpl implements Repository {
     this._leaveCodeResponseDataMapper,
     this._createLeaveRequestResponseDataMapper,
     this._departmentDataMapper,
+    this._departmentsResponseMapper,
   );
 
   final AppApiService _appApiService;
   final AppPreferences _appPreferences;
 
-  final PreferenceUserDataMapper _preferenceUserDataMapper;
+  final ApiUserDataMapper _preferenceUserDataMapper;
   final ApiUserDataMapper _userDataMapper;
   final LanguageCodeDataMapper _languageCodeDataMapper;
   final GenderDataMapper _genderDataMapper;
-  final ApiLoginUserDataMapper _loginUserDataMapper;
+  final ApiUserDataMapper _apiUserDataMapper;
   final ApiAttendanceResponseDataMapper _attendanceResponseDataMapper;
   final ApiAttendanceHistoryResponseDataMapper
       _attendanceHistoryResponseDataMapper;
@@ -40,6 +41,7 @@ class RepositoryImpl implements Repository {
   final ApiCreateLeaveRequestResponseDataMapper
       _createLeaveRequestResponseDataMapper;
   final ApiDepartmentDataMapper _departmentDataMapper;
+  final ApiDepartmentsResponseMapper _departmentsResponseMapper;
 
   @override
   bool get isLoggedIn => _appPreferences.isLoggedIn;
@@ -79,7 +81,7 @@ class RepositoryImpl implements Repository {
   }) async {
     final response =
         await _appApiService.login(email: email, password: password);
-    final user = _loginUserDataMapper.mapToEntity(response?.data?.user);
+    final user = _apiUserDataMapper.mapToEntity(response?.data?.user);
 
     await Future.wait([
       if (response?.data?.accessToken != null)
@@ -123,16 +125,6 @@ class RepositoryImpl implements Repository {
 
   @override
   Future<void> clearCurrentUserData() => _appPreferences.clearCurrentUserData();
-
-  @override
-  Future<PagedList<User>> getUsers({
-    required int page,
-    required int? limit,
-  }) async {
-    final response = await _appApiService.getUsers(page: page, limit: limit);
-
-    return PagedList(data: _userDataMapper.mapToListEntity(response?.results));
-  }
 
   @override
   Future<bool> saveLanguageCode(LanguageCode languageCode) {
@@ -307,8 +299,20 @@ class RepositoryImpl implements Repository {
   }
 
   @override
-  Future<List<User>> getManagers() async {
-    final response = await _appApiService.getManagers();
+  Future<List<Department>> getDepartments({
+    required int page,
+    required int limit,
+  }) async {
+    final response = await _appApiService.getDepartments(
+      page: page,
+      limit: limit,
+    );
+    return _departmentsResponseMapper.mapToEntity(response);
+  }
+
+  @override
+  Future<List<User>> getUsers({required int page, required int limit}) async {
+    final response = await _appApiService.getUsers(page: page,limit: limit);
     return _userDataMapper.mapToListEntity(response?.data);
   }
 }

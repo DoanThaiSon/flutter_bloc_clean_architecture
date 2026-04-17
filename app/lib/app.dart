@@ -60,5 +60,7 @@ export 'resource/styles/app_themes.dart';
 export 'shared_view/app_text_field.dart';
 export 'shared_view/button.dart';
 export 'shared_view/empty_data_widget.dart';
+export 'ui/create_department/create_department_page.dart';
+export 'ui/create_department/department_list_page.dart';
 export 'ui/main/main_page.dart';
 export 'utils/app_utils.dart';

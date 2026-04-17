@@ -10,12 +10,15 @@ import 'create_department_state.dart';
 @Injectable()
 class CreateDepartmentBloc
     extends BaseBloc<CreateDepartmentEvent, CreateDepartmentState> {
-  CreateDepartmentBloc(
-    this._getManagersUseCase,
-    this._createDepartmentUseCase,
-  ) : super(const CreateDepartmentState()) {
-    on<CreateDepartmentPageInitiated>(
-      _onPageInitiated,
+  CreateDepartmentBloc(this._getUsersUseCase, this._createDepartmentUseCase,
+      this._getDepartmentsUseCase)
+      : super(const CreateDepartmentState()) {
+    on<LoadDepartments>(
+      _onLoadDepartments,
+      transformer: log(),
+    );
+    on<LoadMoreDepartments>(
+      _onLoadMoreDepartments,
       transformer: log(),
     );
     on<DepartmentNameChanged>(
@@ -38,6 +41,10 @@ class CreateDepartmentBloc
       _onGetManagers,
       transformer: log(),
     );
+    on<LoadMoreManagers>(
+      _onLoadMoreManagers,
+      transformer: log(),
+    );
     on<CreateDepartmentButtonPressed>(
       _onCreateDepartmentButtonPressed,
       transformer: log(),
@@ -46,18 +53,12 @@ class CreateDepartmentBloc
       _onClearCreateDepartmentErrorMessage,
       transformer: log(),
     );
-
   }
 
-  final GetManagersUseCase _getManagersUseCase;
+  final GetUsersUseCase _getUsersUseCase;
   final CreateDepartmentUseCase _createDepartmentUseCase;
-
-  FutureOr<void> _onPageInitiated(
-    CreateDepartmentPageInitiated event,
-    Emitter<CreateDepartmentState> emit,
-  ) async {
-    add(const GetManagersEvent());
-  }
+  final GetDepartmentsUseCase _getDepartmentsUseCase;
+  static const int _limit = 20;
 
   FutureOr<void> _onDepartmentNameChanged(
     DepartmentNameChanged event,
@@ -90,7 +91,7 @@ class CreateDepartmentBloc
     );
     emit(state.copyWith(
       selectedManagerId: event.managerId,
-      // selectedManagerName: manager.username,
+      selectedManagerName: manager.name,
     ));
   }
 
@@ -99,12 +100,22 @@ class CreateDepartmentBloc
     Emitter<CreateDepartmentState> emit,
   ) async {
     await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async => emit(
+        state.copyWith(
+          loadManagersStatus: LoadDataStatus.init,
+        ),
+      ),
       action: () async {
         emit(state.copyWith(loadManagersStatus: LoadDataStatus.loading));
-        final managers = await _getManagersUseCase();
+        final output = await _getUsersUseCase.execute(
+          const GetUsersInput(page: 1, limit: _limit),
+        );
         emit(state.copyWith(
-          managers: managers,
+          managers: output.users,
           loadManagersStatus: LoadDataStatus.success,
+          currentManagerPage: 1,
+          hasMoreManagers: output.users.length == _limit,
         ));
       },
       doOnError: (e) async {
@@ -112,8 +123,15 @@ class CreateDepartmentBloc
           loadManagersStatus: LoadDataStatus.fail,
         ));
       },
+      doOnEventCompleted: () async {
+        emit(state.copyWith(
+          loadManagersStatus: LoadDataStatus.init,
+        ));
+      },
     );
   }
+
+
 
   FutureOr<void> _onCreateDepartmentButtonPressed(
     CreateDepartmentButtonPressed event,
@@ -150,6 +168,7 @@ class CreateDepartmentBloc
           );
         },
         doOnEventCompleted: () async {
+          await navigator.pop(result: true, useRootNavigator: true);
           emit(state.copyWith(
             createDepartmentStatus: LoadDataStatus.init,
           ));
@@ -157,9 +176,152 @@ class CreateDepartmentBloc
   }
 
   Future<void> _onClearCreateDepartmentErrorMessage(
-      ClearCreateDepartmentErrorMessage event,
-      Emitter<CreateDepartmentState> emit,
-      ) async {
+    ClearCreateDepartmentErrorMessage event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
     emit(state.copyWith(errorCreateDepartmentMessage: null));
+  }
+
+  FutureOr<void> _onLoadDepartments(
+    LoadDepartments event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    await runBlocCatching(
+        handleLoading: false,
+        doOnSubscribe: () async => emit(
+              state.copyWith(
+                getDepartmentStatus: LoadDataStatus.init,
+              ),
+            ),
+        action: () async {
+          emit(state.copyWith(
+            getDepartmentStatus: LoadDataStatus.loading,
+          ));
+
+          final output = await _getDepartmentsUseCase.execute(
+            const GetDepartmentsInput(page: 1, limit: _limit),
+          );
+
+          emit(state.copyWith(
+            departments: output.departments,
+            getDepartmentStatus: LoadDataStatus.success,
+            currentPage: 1,
+            hasMoreData: output.departments.length == _limit,
+            errorMessage: null,
+          ));
+        },
+        doOnError: (e) async {
+          emit(state.copyWith(
+            getDepartmentStatus: LoadDataStatus.fail,
+            errorMessage: e.toString(),
+          ));
+        },
+        doOnEventCompleted: () async {
+          emit(state.copyWith(
+            getDepartmentStatus: LoadDataStatus.init,
+          ));
+        });
+  }
+
+  FutureOr<void> _onLoadMoreDepartments(
+    LoadMoreDepartments event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    if (!state.canLoadMore) {
+      return;
+    }
+    await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async {
+        emit(
+          state.copyWith(
+            loadMoreDepartmentStatus: LoadDataStatus.init,
+            isLoadingMore: true,
+          ),
+        );
+      },
+      action: () async {
+        emit(state.copyWith(
+          loadMoreDepartmentStatus: LoadDataStatus.loading,
+        ));
+
+        final nextPage = state.currentPage + 1;
+
+        final output = await _getDepartmentsUseCase.execute(
+          GetDepartmentsInput(page: nextPage, limit: _limit),
+        );
+
+        emit(state.copyWith(
+          departments: [...state.departments, ...output.departments],
+          currentPage: nextPage,
+          hasMoreData: output.departments.length == _limit,
+          loadMoreDepartmentStatus: LoadDataStatus.success,
+        ));
+      },
+      doOnError: (e) async {
+        emit(state.copyWith(
+            loadDataException: e,
+            isLoadingMore: false,
+            errorMessage: e.toString(),
+            loadMoreDepartmentStatus: LoadDataStatus.fail));
+      },
+      doOnEventCompleted: () async {
+        emit(state.copyWith(
+          loadMoreDepartmentStatus: LoadDataStatus.init,
+          isLoadingMore: false,
+        ));
+      },
+    );
+  }
+
+  FutureOr<void> _onLoadMoreManagers(
+    LoadMoreManagers event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    if (!state.canLoadMoreManagers) {
+      return;
+    }
+    await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async {
+        emit(
+          state.copyWith(
+            loadMoreManagersStatus: LoadDataStatus.init,
+            isLoadingMoreManagers: true,
+          ),
+        );
+      },
+      action: () async {
+        emit(state.copyWith(
+          loadMoreManagersStatus: LoadDataStatus.loading,
+        ));
+
+        final nextPage = state.currentManagerPage + 1;
+
+        final output = await _getUsersUseCase.execute(
+          GetUsersInput(page: nextPage, limit: _limit),
+        );
+
+        emit(state.copyWith(
+          managers: [...state.managers, ...output.users],
+          currentManagerPage: nextPage,
+          hasMoreManagers: output.users.length == _limit,
+          loadMoreManagersStatus: LoadDataStatus.success,
+        ));
+      },
+      doOnError: (e) async {
+        emit(state.copyWith(
+          loadDataException: e,
+          isLoadingMoreManagers: false,
+          loadMoreManagersStatus: LoadDataStatus.fail,
+        ));
+      },
+      doOnEventCompleted: () async {
+        emit(state.copyWith(
+          loadMoreManagersStatus: LoadDataStatus.init,
+          isLoadingMoreManagers: false,
+        ));
+      },
+    );
   }
 }

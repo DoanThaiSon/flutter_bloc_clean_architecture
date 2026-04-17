@@ -39,11 +39,6 @@ abstract class Repository {
 
   Future<bool> saveIsFirstLaunchApp(bool isFirstLaunchApp);
 
-  Future<PagedList<User>> getUsers({
-    required int page,
-    required int? limit,
-  });
-
   Future<bool> saveIsDarkMode(bool isDarkMode);
 
   Future<bool> saveLanguageCode(LanguageCode languageCode);
@@ -120,5 +115,13 @@ abstract class Repository {
     String? managerId,
   });
 
-  Future<List<User>> getManagers();
+  Future<List<Department>> getDepartments({
+    required int page,
+    required int limit,
+  });
+
+  Future<List<User>> getUsers({
+    required int page,
+    required int limit,
+  });
 }

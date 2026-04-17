@@ -44,13 +44,13 @@ class AppPreferences with LogMixin {
     return token.isNotEmpty;
   }
 
-  PreferenceUserData? get currentUser {
+  ApiUserData? get currentUser {
     final user = _sharedPreference.getString(SharedPreferenceKeys.currentUser);
     if (user == null) {
       return null;
     }
 
-    return PreferenceUserData.fromJson(json.decode(user));
+    return ApiUserData.fromJson(json.decode(user));
   }
 
   Future<bool> saveLanguageCode(String languageCode) {
@@ -79,10 +79,10 @@ class AppPreferences with LogMixin {
     );
   }
 
-  Future<bool> saveCurrentUser(PreferenceUserData preferenceUserData) {
+  Future<bool> saveCurrentUser(ApiUserData userData) {
     return _sharedPreference.setString(
       SharedPreferenceKeys.currentUser,
-      json.encode(preferenceUserData),
+      json.encode(userData),
     );
   }
 

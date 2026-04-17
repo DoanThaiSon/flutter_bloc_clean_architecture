@@ -7,6 +7,7 @@ import '../../common_view/common_confirm_dialog.dart';
 import '../../common_view/common_text_field.dart';
 import '../../common_view/popup/common_show_snack_bar.dart';
 import '../../common_view/ui_button.dart';
+import '../../shared_view/user_dropdown_with_load_more_widget.dart';
 import 'bloc/create_department.dart';
 
 @RoutePage()
@@ -28,7 +29,7 @@ class _CreateDepartmentPageState
   @override
   void initState() {
     super.initState();
-    // bloc.add(const CreateDepartmentPageInitiated());
+    bloc.add(const GetManagersEvent());
   }
 
   @override
@@ -216,6 +217,22 @@ class _CreateDepartmentPageState
           ),
           SizedBox(height: Dimens.d16.responsive()),
           _buildSection(
+            title: 'Chọn trưởng phòng',
+            required: false,
+            child: UserDropdownWithLoadMore(
+              allText: 'Tất cả',
+              selectedUserId: state.selectedManagerId,
+              users: state.managers,
+              isLoadingMore: state.isLoadingMoreManagers,
+              hasMore: state.hasMoreManagers,
+              onLoadMore: () {},
+              onChanged: (value) {
+                bloc.add(ManagerSelected(managerId: value ?? ''));
+              },
+            ),
+          ),
+          SizedBox(height: Dimens.d16.responsive()),
+          _buildSection(
             title: 'Mô tả phòng',
             required: false,
             child: CommonTextField(
@@ -238,12 +255,6 @@ class _CreateDepartmentPageState
               borderColor: AppColors.current.borderDefaultColor,
               contentPadding: EdgeInsets.all(Dimens.d12.responsive()),
             ),
-          ),
-          SizedBox(height: Dimens.d16.responsive()),
-          _buildSection(
-            title: 'Chọn trưởng phòng',
-            required: false,
-            child: Container(),
           ),
           SizedBox(height: Dimens.d24.responsive()),
           _buildSubmitButton(state),

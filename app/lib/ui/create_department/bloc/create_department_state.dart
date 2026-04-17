@@ -15,8 +15,21 @@ class CreateDepartmentState extends BaseBlocState with _$CreateDepartmentState {
     String? selectedManagerName,
     @Default([]) List<User> managers,
     @Default(LoadDataStatus.init) LoadDataStatus loadManagersStatus,
+    @Default(1) int currentManagerPage,
+    @Default(false) bool hasMoreManagers,
+    @Default(false) bool isLoadingMoreManagers,
+    @Default(LoadDataStatus.init) LoadDataStatus loadMoreManagersStatus,
     @Default(LoadDataStatus.init) LoadDataStatus createDepartmentStatus,
     String? errorCreateDepartmentMessage,
+
+    @Default([]) List<Department> departments,
+    @Default(LoadDataStatus.init) LoadDataStatus getDepartmentStatus,
+    @Default(1) int currentPage,
+    @Default(false) bool hasMoreData,
+    @Default(false) bool isLoadingMore,
+    @Default(LoadDataStatus.init) LoadDataStatus loadMoreDepartmentStatus,
+    String? errorMessage,
+
     AppException? loadDataException,
   }) = _CreateDepartmentState;
 }
@@ -24,4 +37,6 @@ class CreateDepartmentState extends BaseBlocState with _$CreateDepartmentState {
 extension CreateDepartmentStateX on CreateDepartmentState {
   bool get isFormValid =>
       departmentName.isNotEmpty && departmentCode.isNotEmpty;
+  bool get canLoadMore => hasMoreData && !isLoadingMore;
+  bool get canLoadMoreManagers => hasMoreManagers && !isLoadingMoreManagers;
 }

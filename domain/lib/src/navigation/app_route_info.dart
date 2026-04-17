@@ -19,4 +19,5 @@ class AppRouteInfo with _$AppRouteInfo {
   const factory AppRouteInfo.createDepartment() = _CreateDepartment;
   const factory AppRouteInfo.webView(
       {required String url, required String title}) = _WebViewPage;
+  const factory AppRouteInfo.departmentList() = _DepartmentList;
 }
