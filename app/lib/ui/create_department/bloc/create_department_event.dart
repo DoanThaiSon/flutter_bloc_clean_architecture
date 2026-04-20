@@ -71,3 +71,20 @@ class LoadMoreDepartments extends CreateDepartmentEvent
     with _$LoadMoreDepartments {
   const factory LoadMoreDepartments() = _LoadMoreDepartments;
 }
+
+@freezed
+class SearchDepartments extends CreateDepartmentEvent
+    with _$SearchDepartments {
+  const factory SearchDepartments({
+     String? keyword,
+  }) = _SearchDepartments;
+}
+
+@freezed
+class DeleteDepartment extends CreateDepartmentEvent with _$DeleteDepartment {
+  const factory DeleteDepartment({required String departmentId}) = _DeleteDepartment;
+}
+@freezed
+class GetDepartmentDetail extends CreateDepartmentEvent with _$GetDepartmentDetail {
+  const factory GetDepartmentDetail({required String departmentId}) = _GetDepartmentDetail;
+}

@@ -21,22 +21,26 @@ class CreateDepartmentState extends BaseBlocState with _$CreateDepartmentState {
     @Default(LoadDataStatus.init) LoadDataStatus loadMoreManagersStatus,
     @Default(LoadDataStatus.init) LoadDataStatus createDepartmentStatus,
     String? errorCreateDepartmentMessage,
-
     @Default([]) List<Department> departments,
+    DepartmentDetailResponseData? departmentDetail,
     @Default(LoadDataStatus.init) LoadDataStatus getDepartmentStatus,
     @Default(1) int currentPage,
     @Default(false) bool hasMoreData,
     @Default(false) bool isLoadingMore,
     @Default(LoadDataStatus.init) LoadDataStatus loadMoreDepartmentStatus,
+    String? searchKeyword,
     String? errorMessage,
-
     AppException? loadDataException,
+    @Default(LoadDataStatus.init) LoadDataStatus deleteDepartmentStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus getDepartmentDetailStatus,
   }) = _CreateDepartmentState;
 }
 
 extension CreateDepartmentStateX on CreateDepartmentState {
   bool get isFormValid =>
       departmentName.isNotEmpty && departmentCode.isNotEmpty;
+
   bool get canLoadMore => hasMoreData && !isLoadingMore;
+
   bool get canLoadMoreManagers => hasMoreManagers && !isLoadingMoreManagers;
 }

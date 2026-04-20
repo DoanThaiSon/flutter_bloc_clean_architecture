@@ -326,20 +326,37 @@ class AppApiService {
     );
   }
 
-  Future<ApiDepartmentsResponse?> getDepartments({
-    required int page,
-    required int limit,
-  }) async {
+  Future<ApiDepartmentsResponse?> getDepartments(
+      {required int page, required int limit, String? query}) async {
     return _authAppServerApiClient.request(
       method: RestMethod.get,
       path: '/departments',
       queryParameters: {
         'page': page,
         'limit': limit,
+        if (query != null) 'query': query,
       },
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
       decoder: (json) =>
           ApiDepartmentsResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiDepartmentDetailResponseData?> getDepartmentDetail(
+      {required String departmentId}) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.get,
+      path: '/departments/${departmentId}',
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiDepartmentDetailResponseData.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<void> deleteDepartment(String departmentId) async {
+    await _authAppServerApiClient.request(
+      method: RestMethod.delete,
+      path: '/departments/$departmentId',
     );
   }
 }

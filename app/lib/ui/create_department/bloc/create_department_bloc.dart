@@ -10,8 +10,12 @@ import 'create_department_state.dart';
 @Injectable()
 class CreateDepartmentBloc
     extends BaseBloc<CreateDepartmentEvent, CreateDepartmentState> {
-  CreateDepartmentBloc(this._getUsersUseCase, this._createDepartmentUseCase,
-      this._getDepartmentsUseCase)
+  CreateDepartmentBloc(
+      this._getUsersUseCase,
+      this._createDepartmentUseCase,
+      this._getDepartmentsUseCase,
+      this._departmentDetailUseCase,
+      this._deleteDepartmentUseCase)
       : super(const CreateDepartmentState()) {
     on<LoadDepartments>(
       _onLoadDepartments,
@@ -19,6 +23,10 @@ class CreateDepartmentBloc
     );
     on<LoadMoreDepartments>(
       _onLoadMoreDepartments,
+      transformer: log(),
+    );
+    on<SearchDepartments>(
+      _onSearchDepartments,
       transformer: log(),
     );
     on<DepartmentNameChanged>(
@@ -53,11 +61,21 @@ class CreateDepartmentBloc
       _onClearCreateDepartmentErrorMessage,
       transformer: log(),
     );
+    on<DeleteDepartment>(
+      _onDeleteDepartment,
+      transformer: log(),
+    );
+    on<GetDepartmentDetail>(
+      _onGetDepartmentDetail,
+      transformer: log(),
+    );
   }
 
   final GetUsersUseCase _getUsersUseCase;
   final CreateDepartmentUseCase _createDepartmentUseCase;
   final GetDepartmentsUseCase _getDepartmentsUseCase;
+  final DeleteDepartmentUseCase _deleteDepartmentUseCase;
+  final GetDepartmentDetailUseCase _departmentDetailUseCase;
   static const int _limit = 20;
 
   FutureOr<void> _onDepartmentNameChanged(
@@ -131,8 +149,6 @@ class CreateDepartmentBloc
     );
   }
 
-
-
   FutureOr<void> _onCreateDepartmentButtonPressed(
     CreateDepartmentButtonPressed event,
     Emitter<CreateDepartmentState> emit,
@@ -199,7 +215,8 @@ class CreateDepartmentBloc
           ));
 
           final output = await _getDepartmentsUseCase.execute(
-            const GetDepartmentsInput(page: 1, limit: _limit),
+            GetDepartmentsInput(
+                page: 1, limit: _limit, query: state.searchKeyword),
           );
 
           emit(state.copyWith(
@@ -320,6 +337,95 @@ class CreateDepartmentBloc
         emit(state.copyWith(
           loadMoreManagersStatus: LoadDataStatus.init,
           isLoadingMoreManagers: false,
+        ));
+      },
+    );
+  }
+
+  FutureOr<void> _onSearchDepartments(
+    SearchDepartments event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    emit(state.copyWith(searchKeyword: event.keyword));
+    add(const LoadDepartments());
+  }
+
+  FutureOr<void> _onDeleteDepartment(
+    DeleteDepartment event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async => emit(
+        state.copyWith(
+          deleteDepartmentStatus: LoadDataStatus.init,
+        ),
+      ),
+      action: () async {
+        emit(state.copyWith(deleteDepartmentStatus: LoadDataStatus.loading));
+        await _deleteDepartmentUseCase.execute(
+          DeleteDepartmentInput(departmentId: event.departmentId),
+        );
+        emit(state.copyWith(
+          deleteDepartmentStatus: LoadDataStatus.success,
+        ));
+      },
+      handleError: false,
+      doOnError: (e) async {
+        String errorMessage = 'Có lỗi xảy ra';
+        if (e is RemoteException) {
+          errorMessage = e.generalServerMessage ?? 'Có lỗi xảy ra';
+        }
+        emit(
+          state.copyWith(
+            loadDataException: e,
+            deleteDepartmentStatus: LoadDataStatus.fail,
+            errorMessage: errorMessage,
+          ),
+        );
+      },
+      doOnEventCompleted: () async {
+        await navigator.pop(result: true, useRootNavigator: true);
+        emit(state.copyWith(
+          deleteDepartmentStatus: LoadDataStatus.init,
+        ));
+      },
+    );
+  }
+
+  FutureOr<void> _onGetDepartmentDetail(
+    GetDepartmentDetail event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async => emit(
+        state.copyWith(
+          getDepartmentDetailStatus: LoadDataStatus.init,
+        ),
+      ),
+      action: () async {
+        emit(state.copyWith(getDepartmentDetailStatus: LoadDataStatus.loading));
+        final output = await _departmentDetailUseCase.execute(
+          GetDepartmentDetailInput(departmentId: event.departmentId),
+        );
+        emit(state.copyWith(
+          getDepartmentDetailStatus: LoadDataStatus.success,
+          departmentDetail: output.department
+        ));
+      },
+      handleError: false,
+      doOnError: (e) async {
+        emit(
+          state.copyWith(
+            loadDataException: e,
+            getDepartmentDetailStatus: LoadDataStatus.fail,
+          ),
+        );
+      },
+      doOnEventCompleted: () async {
+        emit(state.copyWith(
+          getDepartmentDetailStatus: LoadDataStatus.init,
         ));
       },
     );

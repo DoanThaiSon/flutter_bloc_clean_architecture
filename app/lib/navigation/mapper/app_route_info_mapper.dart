@@ -22,6 +22,7 @@ class AppRouteInfoMapper extends BaseRouteInfoMapper {
       createDepartment: () => const CreateDepartmentRoute(),
       webView: (String url, String title) =>
           WebViewRoute(url: url, title: title),
+      departmentDetail: (Department department)=> DepartmentDetailRoute(department: department),
       departmentList: ()=> const DepartmentListRoute()
     );
   }

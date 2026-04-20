@@ -21,6 +21,7 @@ export 'src/repository/source/api/mapper/api_attendance_response_data_mapper.dar
 export 'src/repository/source/api/mapper/api_checkout_response_data_mapper.dart';
 export 'src/repository/source/api/mapper/api_create_leave_request_data_mapper.dart';
 export 'src/repository/source/api/mapper/api_department_data_mapper.dart';
+export 'src/repository/source/api/mapper/api_department_detail_response_mapper.dart';
 export 'src/repository/source/api/mapper/api_departments_response_mapper.dart';
 export 'src/repository/source/api/mapper/api_image_url_data_mapper.dart';
 export 'src/repository/source/api/mapper/api_leave_code_data_mapper.dart';

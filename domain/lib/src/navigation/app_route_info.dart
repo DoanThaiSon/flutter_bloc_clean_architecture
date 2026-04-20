@@ -8,16 +8,31 @@ part 'app_route_info.freezed.dart';
 @freezed
 class AppRouteInfo with _$AppRouteInfo {
   const factory AppRouteInfo.main() = _Main;
+
   const factory AppRouteInfo.language() = _LanguagePage;
+
   const factory AppRouteInfo.welcome() = _Welcome;
+
   const factory AppRouteInfo.loginAttendance() = _LoginAttendance;
+
   const factory AppRouteInfo.homeAttendance() = _HomeAttendance;
+
   const factory AppRouteInfo.historyAttendance() = _HistoryAttendance;
+
   const factory AppRouteInfo.profileAttendance() = _ProfileAttendance;
+
   const factory AppRouteInfo.leaveRequest() = _LeaveRequest;
-  const factory AppRouteInfo.createLeaveRequest({LeaveRequest? leaveRequest}) = CreateLeaveRequest;
+
+  const factory AppRouteInfo.createLeaveRequest({LeaveRequest? leaveRequest}) =
+      CreateLeaveRequest;
+
   const factory AppRouteInfo.createDepartment() = _CreateDepartment;
+
   const factory AppRouteInfo.webView(
       {required String url, required String title}) = _WebViewPage;
+
   const factory AppRouteInfo.departmentList() = _DepartmentList;
+
+  const factory AppRouteInfo.departmentDetail(
+      {required Department department}) = _DepartmentDetail;
 }

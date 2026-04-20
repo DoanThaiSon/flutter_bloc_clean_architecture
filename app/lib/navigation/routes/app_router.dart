@@ -47,6 +47,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: CreateLeaveRequestRoute.page),
         AutoRoute(page: CreateDepartmentRoute.page),
         AutoRoute(page: DepartmentListRoute.page),
+        AutoRoute(page: DepartmentDetailRoute.page),
         AutoRoute(page: WebViewRoute.page),
       ];
 }

@@ -18,6 +18,7 @@ class GetDepartmentsUseCase
       departments: await _repository.getDepartments(
         page: input.page,
         limit: input.limit,
+        query: input.query,
       ),
     );
   }
@@ -25,10 +26,10 @@ class GetDepartmentsUseCase
 
 @freezed
 class GetDepartmentsInput extends BaseInput with _$GetDepartmentsInput {
-  const factory GetDepartmentsInput({
-    @Default(1) int page,
-    @Default(20) int limit,
-  }) = _GetDepartmentsInput;
+  const factory GetDepartmentsInput(
+      {@Default(1) int page,
+      @Default(20) int limit,
+      String? query}) = _GetDepartmentsInput;
 }
 
 @freezed

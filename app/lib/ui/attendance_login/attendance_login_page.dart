@@ -53,10 +53,6 @@ class _AttendanceLoginPageState
                 _buildForgotPassword(),
                 SizedBox(height: Dimens.d32.responsive()),
                 _buildLoginButton(),
-                SizedBox(height: Dimens.d24.responsive()),
-                _buildBiometricOptions(),
-                SizedBox(height: Dimens.d32.responsive()),
-                _buildLanguageSelector(),
                 SizedBox(height: Dimens.d16.responsive()),
                 _buildFooter(),
               ],
@@ -68,18 +64,10 @@ class _AttendanceLoginPageState
   }
 
   Widget _buildLogo() {
-    return Container(
-      width: Dimens.d80.responsive(),
-      height: Dimens.d80.responsive(),
-      decoration: BoxDecoration(
-        color: AppColors.current.blue500Color,
-        borderRadius: BorderRadius.circular(Dimens.d20.responsive()),
-      ),
-      child: Icon(
-        Icons.access_time,
-        size: Dimens.d40.responsive(),
-        color: AppColors.current.whiteColor,
-      ),
+    return Image.asset(
+      Assets.images.icons.overtime.path,
+      width: Dimens.d100.responsive(),
+      height: Dimens.d100.responsive(),
     );
   }
 
@@ -89,7 +77,7 @@ class _AttendanceLoginPageState
       style: AppTextStyles.titleTextDefault(
         fontSize: Dimens.d28.responsive(),
         fontWeight: FontWeight.w700,
-        color: AppColors.current.blue500Color,
+        color: AppColors.current.blackColor,
       ),
     );
   }
@@ -127,7 +115,7 @@ class _AttendanceLoginPageState
             style: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d14.responsive(),
               fontWeight: FontWeight.w600,
-              color: AppColors.current.primaryTextColor,
+              color: AppColors.current.blackColor,
             ),
           ),
           SizedBox(height: Dimens.d8.responsive()),
@@ -136,7 +124,8 @@ class _AttendanceLoginPageState
             height: Dimens.d56.responsive(),
             hintText: 'VD: NV12345',
             keyboardType: TextInputType.text,
-            onChanged: (value) => bloc.add(EmployeeIdChanged(employeeId: value)),
+            onChanged: (value) =>
+                bloc.add(EmployeeIdChanged(employeeId: value)),
             hintStyle: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d14.responsive(),
               fontWeight: FontWeight.w400,
@@ -145,7 +134,7 @@ class _AttendanceLoginPageState
             textStyle: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d14.responsive(),
               fontWeight: FontWeight.w400,
-              color: AppColors.current.primaryTextColor,
+              color: AppColors.current.blackColor,
             ),
             borderColor: AppColors.current.borderDefaultColor,
             prefixIcon: Icon(
@@ -160,7 +149,7 @@ class _AttendanceLoginPageState
             style: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d14.responsive(),
               fontWeight: FontWeight.w600,
-              color: AppColors.current.primaryTextColor,
+              color: AppColors.current.blackColor,
             ),
           ),
           SizedBox(height: Dimens.d8.responsive()),
@@ -179,7 +168,7 @@ class _AttendanceLoginPageState
             textStyle: AppTextStyles.titleTextDefault(
               fontSize: Dimens.d14.responsive(),
               fontWeight: FontWeight.w400,
-              color: AppColors.current.primaryTextColor,
+              color: AppColors.current.blackColor,
             ),
             borderColor: AppColors.current.borderDefaultColor,
             prefixIcon: Icon(
@@ -213,7 +202,7 @@ class _AttendanceLoginPageState
         style: AppTextStyles.titleTextDefault(
           fontSize: Dimens.d14.responsive(),
           fontWeight: FontWeight.w600,
-          color: AppColors.current.blue500Color,
+          color: AppColors.current.blackColor,
         ),
       ),
     );
@@ -234,85 +223,14 @@ class _AttendanceLoginPageState
           radius: Dimens.d12.responsive(),
           enableShadow: false,
           color: state.isLoginButtonEnabled && !state.isLoading
-              ? AppColors.current.blue500Color
-              : AppColors.current.secondaryTextColor,
+              ? AppColors.current.blackColor
+              : AppColors.neutral400,
           textColor: AppColors.current.whiteColor,
           onTap: state.isLoginButtonEnabled && !state.isLoading
               ? () => bloc.add(const LoginButtonPressed())
               : null,
         );
       },
-    );
-  }
-
-  Widget _buildBiometricOptions() {
-    return Column(
-      children: [
-        Text(
-          'Hoặc đăng nhập nhanh bằng',
-          style: AppTextStyles.titleTextDefault(
-            fontSize: Dimens.d14.responsive(),
-            fontWeight: FontWeight.w400,
-            color: AppColors.current.secondaryTextColor,
-          ),
-        ),
-        SizedBox(height: Dimens.d16.responsive()),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildBiometricButton(Icons.fingerprint),
-            SizedBox(width: Dimens.d24.responsive()),
-            _buildBiometricButton(Icons.face),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBiometricButton(IconData icon) {
-    return Container(
-      width: Dimens.d56.responsive(),
-      height: Dimens.d56.responsive(),
-      decoration: BoxDecoration(
-        color: AppColors.current.whiteColor,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.current.blackColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Icon(
-        icon,
-        size: Dimens.d28.responsive(),
-        color: AppColors.current.blue500Color,
-      ),
-    );
-  }
-
-  Widget _buildLanguageSelector() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildLanguageOption('Tiếng Việt', true),
-        SizedBox(width: Dimens.d24.responsive()),
-        _buildLanguageOption('English', false),
-      ],
-    );
-  }
-
-  Widget _buildLanguageOption(String text, bool isSelected) {
-    return Text(
-      text,
-      style: AppTextStyles.titleTextDefault(
-        fontSize: Dimens.d14.responsive(),
-        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-        color: isSelected
-            ? AppColors.current.blue500Color
-            : AppColors.current.secondaryTextColor,
-      ),
     );
   }
 

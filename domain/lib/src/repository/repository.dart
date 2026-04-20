@@ -115,9 +115,14 @@ abstract class Repository {
     String? managerId,
   });
 
-  Future<List<Department>> getDepartments({
-    required int page,
-    required int limit,
+  Future<List<Department>> getDepartments(
+      {required int page, required int limit, String? query});
+  Future<DepartmentDetailResponseData> getDepartmentDetail({
+    required String departmentId,
+  });
+
+  Future<void> deleteDepartment({
+    required String departmentId,
   });
 
   Future<List<User>> getUsers({
