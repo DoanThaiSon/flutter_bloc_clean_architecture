@@ -22,7 +22,6 @@ class RepositoryImpl implements Repository {
     this._createLeaveRequestResponseDataMapper,
     this._departmentDataMapper,
     this._departmentsResponseMapper,
-    this._apiDepartmentDetailResponseMapper,
   );
 
   final AppApiService _appApiService;
@@ -43,7 +42,6 @@ class RepositoryImpl implements Repository {
       _createLeaveRequestResponseDataMapper;
   final ApiDepartmentDataMapper _departmentDataMapper;
   final ApiDepartmentsResponseMapper _departmentsResponseMapper;
-  final ApiDepartmentDetailResponseMapper _apiDepartmentDetailResponseMapper;
 
   @override
   bool get isLoggedIn => _appPreferences.isLoggedIn;
@@ -301,6 +299,24 @@ class RepositoryImpl implements Repository {
   }
 
   @override
+  Future<Department> updateDepartment({
+    required String departmentId,
+    required String name,
+    required String code,
+    String? description,
+    String? managerId,
+  }) async {
+    final response = await _appApiService.updateDepartment(
+      departmentId: departmentId,
+      name: name,
+      code: code,
+      description: description,
+      managerId: managerId,
+    );
+    return _departmentDataMapper.mapToEntity(response?.data);
+  }
+
+  @override
   Future<List<Department>> getDepartments(
       {required int page, required int limit, String? query}) async {
     final response = await _appApiService.getDepartments(
@@ -322,10 +338,10 @@ class RepositoryImpl implements Repository {
   }
 
   @override
-  Future<DepartmentDetailResponseData> getDepartmentDetail(
+  Future<Department> getDepartmentDetail(
       {required String departmentId}) async {
     final response =
         await _appApiService.getDepartmentDetail(departmentId: departmentId);
-    return _apiDepartmentDetailResponseMapper.mapToEntity(response);
+    return _departmentDataMapper.mapToEntity(response?.data);
   }
 }

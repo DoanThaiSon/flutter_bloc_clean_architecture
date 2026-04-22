@@ -1,20 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../../data.dart';
+
 part 'api_department_data.freezed.dart';
 
 part 'api_department_data.g.dart';
-
-@freezed
-class ApiDepartmentDetailResponseData with _$ApiDepartmentDetailResponseData{
-  const factory ApiDepartmentDetailResponseData({
-    @JsonKey(name: 'status') String? status,
-    @JsonKey(name: 'message') String? message,
-    @JsonKey(name: 'data') ApiDepartmentData? data,
-  }) = _ApiDepartmentDetailResponseData;
-
-  factory ApiDepartmentDetailResponseData.fromJson(Map<String, dynamic> json) =>
-      _$ApiDepartmentDetailResponseDataFromJson(json);
-}
 
 @freezed
 class ApiDepartmentData with _$ApiDepartmentData {
@@ -24,6 +14,7 @@ class ApiDepartmentData with _$ApiDepartmentData {
     @JsonKey(name: 'code') String? code,
     @JsonKey(name: 'description') String? description,
     @JsonKey(name: 'managerId') String? managerId,
+    @JsonKey(name: 'manager') ApiUserData? manager,
   }) = _ApiDepartmentData;
 
   factory ApiDepartmentData.fromJson(Map<String, dynamic> json) =>

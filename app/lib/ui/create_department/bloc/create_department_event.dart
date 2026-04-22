@@ -1,3 +1,4 @@
+import 'package:domain/domain.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../app.dart';
 
@@ -87,4 +88,29 @@ class DeleteDepartment extends CreateDepartmentEvent with _$DeleteDepartment {
 @freezed
 class GetDepartmentDetail extends CreateDepartmentEvent with _$GetDepartmentDetail {
   const factory GetDepartmentDetail({required String departmentId}) = _GetDepartmentDetail;
+}
+
+@freezed
+class UpdateDepartmentButtonPressed extends CreateDepartmentEvent
+    with _$UpdateDepartmentButtonPressed {
+  const factory UpdateDepartmentButtonPressed() = _UpdateDepartmentButtonPressed;
+}
+
+@freezed
+class InitEditMode extends CreateDepartmentEvent with _$InitEditMode {
+  const factory InitEditMode({required Department department}) = _InitEditMode;
+}
+
+@freezed
+class UpdateDepartmentDetailFromResponse extends CreateDepartmentEvent
+    with _$UpdateDepartmentDetailFromResponse {
+  const factory UpdateDepartmentDetailFromResponse({required Department department}) =
+      _UpdateDepartmentDetailFromResponse;
+}
+
+@freezed
+class UpdateDepartmentInList extends CreateDepartmentEvent
+    with _$UpdateDepartmentInList {
+  const factory UpdateDepartmentInList({required Department department}) =
+      _UpdateDepartmentInList;
 }

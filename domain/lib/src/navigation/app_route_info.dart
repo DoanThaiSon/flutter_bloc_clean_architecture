@@ -26,7 +26,8 @@ class AppRouteInfo with _$AppRouteInfo {
   const factory AppRouteInfo.createLeaveRequest({LeaveRequest? leaveRequest}) =
       CreateLeaveRequest;
 
-  const factory AppRouteInfo.createDepartment() = _CreateDepartment;
+  const factory AppRouteInfo.createDepartment({Department? department}) =
+      _CreateDepartment;
 
   const factory AppRouteInfo.webView(
       {required String url, required String title}) = _WebViewPage;

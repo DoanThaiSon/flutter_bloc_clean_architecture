@@ -36,6 +36,6 @@ class GetDepartmentDetailOutput extends BaseOutput with _$GetDepartmentDetailOut
   const GetDepartmentDetailOutput._();
 
   const factory GetDepartmentDetailOutput({
-    required DepartmentDetailResponseData department,
+    required Department department,
   }) = _GetDepartmentDetailOutput;
 }

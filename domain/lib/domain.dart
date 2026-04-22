@@ -61,4 +61,5 @@ export 'src/usecase/reset_password_use_case.dart';
 export 'src/usecase/save_is_dark_mode_use_case.dart';
 export 'src/usecase/save_is_first_launch_app_use_case.dart';
 export 'src/usecase/save_language_code_use_case.dart';
+export 'src/usecase/update_department_use_case.dart';
 export 'src/usecase/update_leave_request_use_case.dart';

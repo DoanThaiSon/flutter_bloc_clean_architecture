@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../domain.dart';
+
 part 'department.freezed.dart';
 
 
@@ -20,5 +22,6 @@ class Department with _$Department {
     @Default('') String code,
     @Default('') String description,
     @Default('') String managerId,
+    User? manager
   }) = _Department;
 }

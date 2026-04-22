@@ -115,9 +115,17 @@ abstract class Repository {
     String? managerId,
   });
 
+  Future<Department> updateDepartment({
+    required String departmentId,
+    required String name,
+    required String code,
+    String? description,
+    String? managerId,
+  });
+
   Future<List<Department>> getDepartments(
       {required int page, required int limit, String? query});
-  Future<DepartmentDetailResponseData> getDepartmentDetail({
+  Future<Department> getDepartmentDetail({
     required String departmentId,
   });
 

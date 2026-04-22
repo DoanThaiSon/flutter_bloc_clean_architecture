@@ -13,6 +13,7 @@ class CreateDepartmentState extends BaseBlocState with _$CreateDepartmentState {
     String? description,
     String? selectedManagerId,
     String? selectedManagerName,
+    String? editingDepartmentId,
     @Default([]) List<User> managers,
     @Default(LoadDataStatus.init) LoadDataStatus loadManagersStatus,
     @Default(1) int currentManagerPage,
@@ -22,7 +23,7 @@ class CreateDepartmentState extends BaseBlocState with _$CreateDepartmentState {
     @Default(LoadDataStatus.init) LoadDataStatus createDepartmentStatus,
     String? errorCreateDepartmentMessage,
     @Default([]) List<Department> departments,
-    DepartmentDetailResponseData? departmentDetail,
+    Department? departmentDetail,
     @Default(LoadDataStatus.init) LoadDataStatus getDepartmentStatus,
     @Default(1) int currentPage,
     @Default(false) bool hasMoreData,
@@ -33,6 +34,8 @@ class CreateDepartmentState extends BaseBlocState with _$CreateDepartmentState {
     AppException? loadDataException,
     @Default(LoadDataStatus.init) LoadDataStatus deleteDepartmentStatus,
     @Default(LoadDataStatus.init) LoadDataStatus getDepartmentDetailStatus,
+    @Default(LoadDataStatus.init) LoadDataStatus updateDepartmentStatus,
+    @Default(false) bool isDepartmentUpdated,
   }) = _CreateDepartmentState;
 }
 

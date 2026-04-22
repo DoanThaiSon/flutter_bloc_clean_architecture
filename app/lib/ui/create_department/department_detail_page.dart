@@ -3,6 +3,8 @@ import 'package:domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:resources/resources.dart';
 import '../../app.dart';
+import '../../common_view/popup/common_show_snack_bar.dart';
+import '../../common_view/ui_button.dart';
 import 'bloc/create_department.dart';
 
 @RoutePage()
@@ -10,7 +12,8 @@ class DepartmentDetailPage extends StatefulWidget {
   final Department department;
 
   const DepartmentDetailPage({
-    required this.department, super.key,
+    required this.department,
+    super.key,
   });
 
   @override
@@ -21,13 +24,11 @@ class DepartmentDetailPage extends StatefulWidget {
 
 class _DepartmentDetailPageState
     extends BasePageState<DepartmentDetailPage, CreateDepartmentBloc> {
-
   @override
   void initState() {
     super.initState();
-    bloc.add( GetDepartmentDetail(departmentId: widget.department.id));
+    bloc.add(GetDepartmentDetail(departmentId: widget.department.id));
   }
-
 
   void _showDeleteConfirmDialog() {
     showDialog(
@@ -83,37 +84,47 @@ class _DepartmentDetailPageState
       appBar: CommonAppBar(
         text: 'Chi tiết phòng ban',
         leadingIcon: LeadingIcon.newBack,
-        onLeadingPressed: () => navigator.pop(useRootNavigator: true),
+        onLeadingPressed: () {
+          // Chỉ trả về department nếu đã được update
+          final result = bloc.state.isDepartmentUpdated 
+              ? bloc.state.departmentDetail 
+              : null;
+          navigator.pop(
+            useRootNavigator: true,
+            result: result,
+          );
+        },
       ),
-      body: BlocListener<CreateDepartmentBloc, CreateDepartmentState>(
+      body: BlocConsumer<CreateDepartmentBloc, CreateDepartmentState>(
         listenWhen: (previous, current) =>
             previous.deleteDepartmentStatus != current.deleteDepartmentStatus,
         listener: (context, state) {
-          // if (state.deleteDepartmentStatus == LoadDataStatus.success) {
-          //   showSuccessNotification('Xóa phòng ban thành công');
-          //   navigator.pop(true);
-          // } else if (state.deleteDepartmentStatus == LoadDataStatus.fail) {
-          //   showErrorNotification(
-          //     state.errorMessage ?? 'Xóa phòng ban thất bại',
-          //   );
-          // }
+          if (state.deleteDepartmentStatus == LoadDataStatus.success) {
+            showAppSnackBar(
+              context,
+              message: 'Xóa phòng ban thành công',
+              backgroundColor: AppColors.current.blackColor,
+            );
+          }
         },
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(Dimens.d16.responsive()),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoCard(),
-              SizedBox(height: Dimens.d16.responsive()),
-              _buildActionButtons(),
-            ],
-          ),
-        ),
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(Dimens.d16.responsive()),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoCard(state),
+                SizedBox(height: Dimens.d16.responsive()),
+                _buildActionButtons(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(CreateDepartmentState state) {
     return Container(
       padding: EdgeInsets.all(Dimens.d20.responsive()),
       decoration: BoxDecoration(
@@ -130,49 +141,29 @@ class _DepartmentDetailPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: Dimens.d80.responsive(),
-              height: Dimens.d80.responsive(),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF1E40AF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(Dimens.d16.responsive()),
-              ),
-              child: Center(
-                child: Text(
-                  widget.department.code.isNotEmpty
-                      ? widget.department.code.substring(0, 1).toUpperCase()
-                      : 'D',
-                  style: AppTextStyles.titleTextDefault(
-                    fontSize: Dimens.d36.responsive(),
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.current.whiteColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: Dimens.d24.responsive()),
           _buildInfoRow(
             label: 'Tên phòng ban',
-            value: widget.department.name,
+            value: state.departmentDetail?.name ?? '',
             icon: Icons.business,
           ),
           SizedBox(height: Dimens.d16.responsive()),
           _buildInfoRow(
             label: 'Mã phòng ban',
-            value: widget.department.code,
+            value: state.departmentDetail?.code ?? '',
             icon: Icons.tag,
           ),
-          if (widget.department.description.isNotEmpty) ...[
+          SizedBox(height: Dimens.d16.responsive()),
+          _buildInfoRow(
+            label: 'CBQL',
+            value: state.departmentDetail?.manager?.name??'',
+            icon: Icons.personal_injury_outlined,
+          ),
+          if (state.departmentDetail?.description.isNotEmpty ??
+              true) ...[
             SizedBox(height: Dimens.d16.responsive()),
             _buildInfoRow(
               label: 'Mô tả',
-              value: widget.department.description,
+              value: state.departmentDetail?.description ?? '',
               icon: Icons.description,
             ),
           ],
@@ -230,80 +221,34 @@ class _DepartmentDetailPageState
 
         return Column(
           children: [
-            SizedBox(
+            UIButton(
               width: double.infinity,
               height: Dimens.d48.responsive(),
-              child: ElevatedButton.icon(
-                onPressed: isDeleting
-                    ? null
-                    : () async {
-                        // final result = await navigator.push(
-                        //   AppRouteInfo.createDepartment(
-                        //     department: widget.department,
-                        //   ),
-                        // );
-                        // if (result == true) {
-                        //   navigator.pop(useRootNavigator: true);
-                        // }
-                      },
-                icon: Icon(
-                  Icons.edit,
-                  size: Dimens.d20.responsive(),
-                ),
-                label: Text(
-                  'Sửa phòng ban',
-                  style: AppTextStyles.titleTextDefault(
-                    fontSize: Dimens.d16.responsive(),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.current.whiteColor,
+              onTap: () async {
+                final result = await navigator.push(
+                  AppRouteInfo.createDepartment(
+                    department: widget.department,
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.current.blackColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Dimens.d12.responsive()),
-                  ),
-                ),
-              ),
+                );
+                // Nếu update thành công, cập nhật dữ liệu từ response
+                if (result != null && result is Department) {
+                  bloc.add(UpdateDepartmentDetailFromResponse(department: result));
+                }
+              },
+              text: 'Sửa phòng ban',
+              color: AppColors.current.blackColor,
+              textColor: AppColors.current.whiteColor,
+              radius: Dimens.d12.responsive(),
             ),
             SizedBox(height: Dimens.d12.responsive()),
-            SizedBox(
+            UIButton(
               width: double.infinity,
               height: Dimens.d48.responsive(),
-              child: OutlinedButton.icon(
-                onPressed: isDeleting ? null : _showDeleteConfirmDialog,
-                icon: isDeleting
-                    ? SizedBox(
-                        width: Dimens.d16.responsive(),
-                        height: Dimens.d16.responsive(),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.current.errorTextColor,
-                        ),
-                      )
-                    : Icon(
-                        Icons.delete_outline,
-                        size: Dimens.d20.responsive(),
-                        color: AppColors.current.errorTextColor,
-                      ),
-                label: Text(
-                  isDeleting ? 'Đang xóa...' : 'Xóa phòng ban',
-                  style: AppTextStyles.titleTextDefault(
-                    fontSize: Dimens.d16.responsive(),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.current.errorTextColor,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                    color: AppColors.current.errorTextColor,
-                    width: 1.5,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Dimens.d12.responsive()),
-                  ),
-                ),
-              ),
+              onTap: isDeleting ? null : _showDeleteConfirmDialog,
+              text: isDeleting ? 'Đang xóa...' : 'Xóa phòng ban',
+              color: AppColors.current.redColor,
+              radius: Dimens.d12.responsive(),
+              // iconData: ,
             ),
           ],
         );

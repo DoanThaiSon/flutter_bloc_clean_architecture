@@ -309,6 +309,28 @@ class AppApiService {
     );
   }
 
+  Future<ApiCreateDepartmentResponse?> updateDepartment({
+    required String departmentId,
+    required String name,
+    required String code,
+    String? description,
+    String? managerId,
+  }) async {
+    return _authAppServerApiClient.request(
+      method: RestMethod.put,
+      path: '/departments/$departmentId',
+      body: {
+        'name': name,
+        'code': code,
+        if (description != null) 'description': description,
+        if (managerId != null) 'managerId': managerId,
+      },
+      successResponseMapperType: SuccessResponseMapperType.jsonObject,
+      decoder: (json) =>
+          ApiCreateDepartmentResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
   Future<ApiManagersResponse?> getUsers({
     required int page,
     required int limit,
@@ -342,14 +364,14 @@ class AppApiService {
     );
   }
 
-  Future<ApiDepartmentDetailResponseData?> getDepartmentDetail(
+  Future<ApiCreateDepartmentResponse?> getDepartmentDetail(
       {required String departmentId}) async {
     return _authAppServerApiClient.request(
       method: RestMethod.get,
       path: '/departments/${departmentId}',
       successResponseMapperType: SuccessResponseMapperType.jsonObject,
       decoder: (json) =>
-          ApiDepartmentDetailResponseData.fromJson(json as Map<String, dynamic>),
+          ApiCreateDepartmentResponse.fromJson(json as Map<String, dynamic>),
     );
   }
 

@@ -12,7 +12,9 @@ import 'bloc/create_department.dart';
 
 @RoutePage()
 class CreateDepartmentPage extends StatefulWidget {
-  const CreateDepartmentPage({super.key});
+  final Department? department;
+
+  const CreateDepartmentPage({this.department, super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -29,6 +31,12 @@ class _CreateDepartmentPageState
   @override
   void initState() {
     super.initState();
+    if (widget.department != null) {
+      bloc.add(InitEditMode(department: widget.department!));
+      _nameController.text = widget.department!.name;
+      _codeController.text = widget.department!.code;
+      _descriptionController.text = widget.department!.description ?? '';
+    }
     bloc.add(const GetManagersEvent());
   }
 
@@ -46,13 +54,14 @@ class _CreateDepartmentPageState
       hideKeyboardWhenTouchOutside: true,
       backgroundColor: AppColors.current.backgroundLayer1,
       appBar: CommonAppBar(
-        text: 'Tạo phòng ban',
+        text: widget.department != null ? 'Sửa phòng ban' : 'Tạo phòng ban',
         leadingIcon: LeadingIcon.newBack,
         onLeadingPressed: () => navigator.pop(useRootNavigator: true),
       ),
       body: BlocListener<CreateDepartmentBloc, CreateDepartmentState>(
         listenWhen: (previous, current) =>
             previous.createDepartmentStatus != current.createDepartmentStatus ||
+            previous.updateDepartmentStatus != current.updateDepartmentStatus ||
             (previous.errorCreateDepartmentMessage !=
                     current.errorCreateDepartmentMessage &&
                 current.errorCreateDepartmentMessage != null),
@@ -61,6 +70,13 @@ class _CreateDepartmentPageState
             showAppSnackBar(
               context,
               message: 'Tạo phòng ban thành công',
+              backgroundColor: AppColors.current.blackColor,
+            );
+          }
+          if (state.updateDepartmentStatus == LoadDataStatus.success) {
+            showAppSnackBar(
+              context,
+              message: 'Cập nhật phòng ban thành công',
               backgroundColor: AppColors.current.blackColor,
             );
           }
@@ -264,19 +280,27 @@ class _CreateDepartmentPageState
   }
 
   Widget _buildSubmitButton(CreateDepartmentState state) {
+    final isEditMode = widget.department != null;
+    final isLoading = state.createDepartmentStatus == LoadDataStatus.loading ||
+        state.updateDepartmentStatus == LoadDataStatus.loading;
+
     return UIButton(
       height: Dimens.d56.responsive(),
       width: double.infinity,
-      text: 'Tạo mới',
+      text: isEditMode ? 'Cập nhật' : 'Tạo mới',
       textSize: Dimens.d16.responsive(),
       fontWeight: FontWeight.w700,
       radius: Dimens.d12.responsive(),
       enableShadow: false,
       color: state.isFormValid ? const Color(0xFF2563EB) : AppColors.neutral400,
       textColor: AppColors.current.whiteColor,
-      onTap: state.isFormValid
+      onTap: (state.isFormValid && !isLoading)
           ? () {
-              bloc.add(const CreateDepartmentButtonPressed());
+              if (isEditMode) {
+                bloc.add(const UpdateDepartmentButtonPressed());
+              } else {
+                bloc.add(const CreateDepartmentButtonPressed());
+              }
             }
           : null,
     );

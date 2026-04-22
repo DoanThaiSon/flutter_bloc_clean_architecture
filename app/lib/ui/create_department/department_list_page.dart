@@ -200,8 +200,15 @@ class _DepartmentListPageState
         final result = await navigator.push(
           AppRouteInfo.departmentDetail(department: department),
         );
-        if (result == true) {
-          bloc.add(const LoadDepartments());
+        // Nếu có department được trả về (update hoặc delete), cập nhật list
+        if (result != null) {
+          if (result is Department) {
+            // Update department trong list
+            bloc.add(UpdateDepartmentInList(department: result));
+          } else if (result == true) {
+            // Delete thành công, reload list
+            bloc.add(const LoadDepartments());
+          }
         }
       },
       child: Container(
@@ -295,6 +302,7 @@ class _DepartmentListPageState
                       ],
                     ],
                   ),
+                  SizedBox(height: Dimens.d4.responsive()),
                 ],
               ),
             ),

@@ -15,7 +15,8 @@ class CreateDepartmentBloc
       this._createDepartmentUseCase,
       this._getDepartmentsUseCase,
       this._departmentDetailUseCase,
-      this._deleteDepartmentUseCase)
+      this._deleteDepartmentUseCase,
+      this._updateDepartmentUseCase)
       : super(const CreateDepartmentState()) {
     on<LoadDepartments>(
       _onLoadDepartments,
@@ -65,8 +66,24 @@ class CreateDepartmentBloc
       _onDeleteDepartment,
       transformer: log(),
     );
+    on<InitEditMode>(
+      _onInitEditMode,
+      transformer: log(),
+    );
+    on<UpdateDepartmentButtonPressed>(
+      _onUpdateDepartmentButtonPressed,
+      transformer: log(),
+    );
     on<GetDepartmentDetail>(
       _onGetDepartmentDetail,
+      transformer: log(),
+    );
+    on<UpdateDepartmentDetailFromResponse>(
+      _onUpdateDepartmentDetailFromResponse,
+      transformer: log(),
+    );
+    on<UpdateDepartmentInList>(
+      _onUpdateDepartmentInList,
       transformer: log(),
     );
   }
@@ -76,6 +93,7 @@ class CreateDepartmentBloc
   final GetDepartmentsUseCase _getDepartmentsUseCase;
   final DeleteDepartmentUseCase _deleteDepartmentUseCase;
   final GetDepartmentDetailUseCase _departmentDetailUseCase;
+  final UpdateDepartmentUseCase _updateDepartmentUseCase;
   static const int _limit = 20;
 
   FutureOr<void> _onDepartmentNameChanged(
@@ -402,6 +420,7 @@ class CreateDepartmentBloc
       doOnSubscribe: () async => emit(
         state.copyWith(
           getDepartmentDetailStatus: LoadDataStatus.init,
+          isDepartmentUpdated: false,
         ),
       ),
       action: () async {
@@ -410,9 +429,8 @@ class CreateDepartmentBloc
           GetDepartmentDetailInput(departmentId: event.departmentId),
         );
         emit(state.copyWith(
-          getDepartmentDetailStatus: LoadDataStatus.success,
-          departmentDetail: output.department
-        ));
+            getDepartmentDetailStatus: LoadDataStatus.success,
+            departmentDetail: output.department));
       },
       handleError: false,
       doOnError: (e) async {
@@ -429,5 +447,96 @@ class CreateDepartmentBloc
         ));
       },
     );
+  }
+
+  FutureOr<void> _onInitEditMode(
+    InitEditMode event,
+    Emitter<CreateDepartmentState> emit,
+  ) {
+    emit(state.copyWith(
+      editingDepartmentId: event.department.id,
+      departmentName: event.department.name,
+      departmentCode: event.department.code,
+      description: event.department.description,
+      selectedManagerId: event.department.managerId,
+    ));
+  }
+
+  FutureOr<void> _onUpdateDepartmentButtonPressed(
+    UpdateDepartmentButtonPressed event,
+    Emitter<CreateDepartmentState> emit,
+  ) async {
+    if (state.editingDepartmentId == null) {
+      return;
+    }
+
+    await runBlocCatching(
+      handleLoading: false,
+      doOnSubscribe: () async => emit(
+        state.copyWith(
+          updateDepartmentStatus: LoadDataStatus.init,
+        ),
+      ),
+      action: () async {
+        emit(state.copyWith(updateDepartmentStatus: LoadDataStatus.loading));
+        final output = await _updateDepartmentUseCase.execute(
+          UpdateDepartmentInput(
+            departmentId: state.editingDepartmentId ?? '',
+            name: state.departmentName,
+            code: state.departmentCode,
+            description: state.description,
+            managerId: state.selectedManagerId,
+          ),
+        );
+        emit(state.copyWith(
+          departmentDetail: output.department,
+          updateDepartmentStatus: LoadDataStatus.success,
+        ));
+      },
+      handleError: false,
+      doOnError: (e) async {
+        String errorMessage = 'Có lỗi xảy ra';
+        if (e is RemoteException) {
+          errorMessage = e.generalServerMessage ?? 'Có lỗi xảy ra';
+        }
+        emit(
+          state.copyWith(
+            loadDataException: e,
+            updateDepartmentStatus: LoadDataStatus.fail,
+            errorCreateDepartmentMessage: errorMessage,
+          ),
+        );
+      },
+      doOnEventCompleted: () async {
+        await navigator.pop(result: state.departmentDetail, useRootNavigator: true);
+        emit(state.copyWith(
+          updateDepartmentStatus: LoadDataStatus.init,
+        ));
+      },
+    );
+  }
+
+  FutureOr<void> _onUpdateDepartmentDetailFromResponse(
+    UpdateDepartmentDetailFromResponse event,
+    Emitter<CreateDepartmentState> emit,
+  ) {
+    emit(state.copyWith(
+      departmentDetail: event.department,
+      isDepartmentUpdated: true,
+    ));
+  }
+
+  FutureOr<void> _onUpdateDepartmentInList(
+    UpdateDepartmentInList event,
+    Emitter<CreateDepartmentState> emit,
+  ) {
+    final updatedDepartments = state.departments.map((dept) {
+      if (dept.id == event.department.id) {
+        return event.department;
+      }
+      return dept;
+    }).toList();
+    
+    emit(state.copyWith(departments: updatedDepartments));
   }
 }
